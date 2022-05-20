@@ -202,6 +202,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88068e3a28bca9d4e889acc317ab23dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  environment:
+    serializedVersion: 2
+    m_Bits: 8
   moveSpeed: 10
   jumpForce: 10
 --- !u!212 &504534214
@@ -366,7 +369,7 @@ GameObject:
   - component: {fileID: 746614270}
   - component: {fileID: 746614269}
   - component: {fileID: 746614271}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
