@@ -1,21 +1,22 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D _rb;
+    private Collider2D _col;
     private PlayerInputActions _playerInputActions;
     private InputAction _horizontalMove;
-    
+
+    [SerializeField] private LayerMask environment;
+
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpForce;
     
     private void OnEnable()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _col = GetComponent<Collider2D>();
         
         _playerInputActions = new PlayerInputActions();
         _playerInputActions.Enable();
@@ -39,6 +40,12 @@ public class PlayerController : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext ctx)
     {
-        _rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        if (CheckDirection(Vector2.down)) _rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+    }
+
+    private bool CheckDirection(Vector2 direction)
+    {
+        var bounds = _col.bounds;
+        return Physics2D.BoxCast(bounds.center, bounds.size, 0f, direction, .1f, environment);
     }
 }
