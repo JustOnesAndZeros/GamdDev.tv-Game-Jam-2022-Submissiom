@@ -35,7 +35,11 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        _rb.velocity = new Vector2(_horizontalMove.ReadValue<float>() * moveSpeed, _rb.velocity.y);
+        float moveDirection = _horizontalMove.ReadValue<float>();
+        if (!CheckDirection(new Vector2(moveDirection, 0)))
+        {
+            _rb.velocity = new Vector2(_horizontalMove.ReadValue<float>() * moveSpeed, _rb.velocity.y);
+        }
     }
 
     private void OnJump(InputAction.CallbackContext ctx)
