@@ -6,6 +6,7 @@ public class SpawnManager : MonoBehaviour
     private Queue<Queue<Action>> _recordings;
     private Queue<Queue<Action>> _loopRecordings;
     [SerializeField] private GameObject player;
+    [SerializeField] private GameObject playerClone;
 
     private void Awake()
     {
@@ -26,7 +27,7 @@ public class SpawnManager : MonoBehaviour
 
     private void AddNextItemInQueue()
     {
-        GameObject rec = Instantiate(player);
+        GameObject rec = Instantiate(playerClone);
         
         PlayerController script = rec.GetComponent<PlayerController>();
         script.RecordedActions = new Queue<Action>(_loopRecordings.Dequeue());

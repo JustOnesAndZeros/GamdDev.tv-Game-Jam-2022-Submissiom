@@ -82,8 +82,6 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (RecordedActions.Count <= 0 && !isPlayback) return;
-
         if (isPlayback) PlayRecording();
 
         _timePassed += Time.deltaTime;
@@ -105,7 +103,6 @@ public class PlayerController : MonoBehaviour
         }
         
         RecordedActions.Dequeue();
-        Debug.Log(RecordedActions.Count);
     }
 
     private void FixedUpdate()
