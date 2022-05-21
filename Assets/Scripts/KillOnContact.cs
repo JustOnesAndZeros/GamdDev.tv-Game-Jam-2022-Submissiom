@@ -5,8 +5,11 @@ using UnityEngine;
 
 public class KillOnContact : MonoBehaviour
 {
+    public delegate void Death(GameObject player);
+    public static event Death OnDeath;
+    
     private void OnCollisionEnter2D(Collision2D col)
     {
-        Destroy(col.gameObject);
+        OnDeath?.Invoke(col.gameObject);
     }
 }

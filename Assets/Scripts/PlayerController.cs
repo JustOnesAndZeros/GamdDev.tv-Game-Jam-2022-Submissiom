@@ -1,3 +1,5 @@
+using System;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,8 +10,9 @@ public class PlayerController : MonoBehaviour
     private PlayerInputActions _playerInputActions;
     private InputAction _horizontalMove;
 
-    [SerializeField] private LayerMask environment;
-
+    [Tooltip("layer the player collides with")] [SerializeField] private LayerMask environment;
+    [Tooltip("player will respawn here")] [SerializeField] private GameObject spawn;
+    [Space]
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpForce;
     
@@ -24,6 +27,8 @@ public class PlayerController : MonoBehaviour
         _horizontalMove = _playerInputActions.Movement.Horizontal;
         
         _playerInputActions.Movement.Jump.started += OnJump;
+
+        KillOnContact.OnDeath += OnDeath;
     }
 
     private void OnDisable()
@@ -31,8 +36,10 @@ public class PlayerController : MonoBehaviour
         _playerInputActions.Movement.Jump.started -= OnJump;
         
         _playerInputActions.Disable();
+        
+        KillOnContact.OnDeath -= OnDeath;
     }
-
+    
     private void FixedUpdate()
     {
         float moveDirection = _horizontalMove.ReadValue<float>();
@@ -51,5 +58,10 @@ public class PlayerController : MonoBehaviour
     {
         var bounds = _col.bounds;
         return Physics2D.BoxCast(bounds.center, bounds.size, 0f, direction, .1f, environment);
+    }
+
+    private void OnDeath(GameObject player)
+    {
+        transform.position = spawn.transform.position;
     }
 }
