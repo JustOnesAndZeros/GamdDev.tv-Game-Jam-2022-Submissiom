@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
 
     [Tooltip("layer the player collides with")] [SerializeField] private LayerMask environment; //layer to check with boxcast
     [Tooltip("player will respawn here")] [SerializeField] private GameObject spawn; //spawn object
+    [SerializeField] private GameObject replay;
     [Space]
     [SerializeField] private float moveSpeed; //horizontal movement speed
     [SerializeField] private float jumpForce; //vertical impulse force for jumping
@@ -100,6 +101,8 @@ public class PlayerController : MonoBehaviour
     //executed when the player collides with a lethal object
     private void OnDeath(GameObject player)
     {
+        _rb.simulated = false;
         player.transform.position = spawn.transform.position; //teleports player back to spawn point
+        Instantiate(replay, player.transform.position, Quaternion.Euler(Vector3.zero));
     }
 }

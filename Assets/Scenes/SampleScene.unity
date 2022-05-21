@@ -418,6 +418,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   spawn: {fileID: 730918268}
+  replay: {fileID: 362152867449773409, guid: ad0cfb6f80c5b1f4ea0dc5d879d56f77, type: 3}
   moveSpeed: 10
   jumpForce: 10
 --- !u!212 &504534214
