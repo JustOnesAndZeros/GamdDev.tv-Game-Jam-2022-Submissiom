@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviour
     private float _velocity;
 
     private float _timePassed;
-    private Queue<float[]> _playerActions;
+    private Queue<float[]> _recordedActions;
 
     //get rigidbody and collider
     private void Awake()
@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _col = GetComponent<Collider2D>();
         
-        _playerActions = new Queue<float[]>();
+        _recordedActions = new Queue<float[]>();
     }
 
     //enable user input and subscribe to events
@@ -79,7 +79,7 @@ public class PlayerController : MonoBehaviour
         if (CheckDirection(new Vector2(moveDirection, 0))) return; //will not move player if a wall is in that direction (prevents sticking to walls)
 
         _velocity = moveDirection * moveSpeed; //sets player velocity
-        _playerActions.Enqueue(new[] {_timePassed, 0, _velocity}); //records new direction and time to be replayed next loop
+        _recordedActions.Enqueue(new[] {_timePassed, 0, _velocity}); //records new direction and time to be replayed next loop
     }
 
     private void OnJump(InputAction.CallbackContext ctx)
@@ -87,7 +87,7 @@ public class PlayerController : MonoBehaviour
         if (!CheckDirection(Vector2.down)) return; //checks if player is touching the ground before jumping
         
         _rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse); //applies vertical force to player
-        _playerActions.Enqueue(new []{_timePassed, 1, jumpForce}); //records jump force and time to be replayed next loop
+        _recordedActions.Enqueue(new []{_timePassed, 1, jumpForce}); //records jump force and time to be replayed next loop
     }
 
     //checks if the player is touching a wall in the specified direction
@@ -103,6 +103,8 @@ public class PlayerController : MonoBehaviour
     {
         _rb.simulated = false;
         player.transform.position = spawn.transform.position; //teleports player back to spawn point
-        Instantiate(replay, player.transform.position, Quaternion.Euler(Vector3.zero));
+        GameObject newReplay = Instantiate(replay, player.transform.position, Quaternion.Euler(Vector3.zero)); //spawn clone of player
+        newReplay.GetComponent<PlayerReplay>().Actions = _recordedActions; //pass recording of this loop's actions to the clone
+        _recordedActions.Clear(); //clears recorded actions queue
     }
 }
