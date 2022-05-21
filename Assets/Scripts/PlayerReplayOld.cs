@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerReplay : MonoBehaviour
+public class PlayerReplayOld : MonoBehaviour
 {
     [SerializeField] private LayerMask environment;
     private Rigidbody2D _rb;
     private Collider2D _col;
 
-    private Queue<PlayerController.Action> _actions;
+    public Queue<PlayerController.Action> Actions;
     private float _timePassed;
     private float _velocity;
 
@@ -17,7 +17,7 @@ public class PlayerReplay : MonoBehaviour
         _col = GetComponent<Collider2D>();
 
         //copies recorded actions to replay and clears recording on player
-        _actions = new Queue<PlayerController.Action>(PlayerController.RecordedActions);
+        Actions = new Queue<PlayerController.Action>(PlayerController.RecordedActions);
         PlayerController.RecordedActions.Clear();
     }
 
@@ -25,7 +25,7 @@ public class PlayerReplay : MonoBehaviour
     {
         _timePassed += Time.deltaTime;
         
-        if (!_actions.TryPeek(out PlayerController.Action act)) return;
+        if (!Actions.TryPeek(out PlayerController.Action act)) return;
         if (!(_timePassed >= act.Time)) return;
         
         switch (act.ActionType) //check action type
@@ -38,7 +38,7 @@ public class PlayerReplay : MonoBehaviour
                 break;
         }
         
-        _actions.Dequeue(); //remove action from front of queue
+        Actions.Dequeue(); //remove action from front of queue
     }
 
     private void FixedUpdate()

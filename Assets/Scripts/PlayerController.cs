@@ -8,19 +8,21 @@ public class PlayerController : MonoBehaviour
     private Collider2D _col;
     private PlayerInputActions _playerInputActions;
 
-    [Tooltip("layer the player collides with")] [SerializeField] private LayerMask environment; //layer to check with boxcast
-    [Tooltip("player will respawn here")] [SerializeField] private GameObject spawn; //spawn object
-    [SerializeField] private GameObject replay;
+    [SerializeField] private GameObject spawn; //spawn object
+    [SerializeField] private LayerMask environment; //layer to check with boxcast
     [Space]
     [SerializeField] private float moveSpeed; //horizontal movement speed
     [SerializeField] private float jumpForce; //vertical impulse force for jumping
     private float _velocity;
-
+    
+    private float _timePassed;
+    public static Queue<Action> RecordedActions;
+    
     public struct Action
     {
-        public float Time;
-        public int ActionType;
-        public float Value;
+        public readonly float Time;
+        public readonly int ActionType;
+        public readonly float Value;
 
         public Action(float time, int actionType, float value)
         {
@@ -30,10 +32,6 @@ public class PlayerController : MonoBehaviour
         }
     }
     
-    private float _timePassed;
-    public static Queue<Action> RecordedActions;
-
-    //get rigidbody and collider
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
@@ -41,7 +39,7 @@ public class PlayerController : MonoBehaviour
         
         RecordedActions = new Queue<Action>();
     }
-
+    
     //enable user input and subscribe to events
     private void OnEnable()
     {
@@ -57,11 +55,6 @@ public class PlayerController : MonoBehaviour
         KillOnContact.OnDeath += OnDeath;
     }
 
-    private void Start()
-    {
-        transform.position = spawn.transform.position; //spawns player at spawn point
-    }
-
     //unsubscribes from events
     private void OnDisable()
     {
@@ -75,7 +68,7 @@ public class PlayerController : MonoBehaviour
         
         KillOnContact.OnDeath -= OnDeath;
     }
-
+    
     private void Update()
     {
         _timePassed += Time.deltaTime;
@@ -115,8 +108,8 @@ public class PlayerController : MonoBehaviour
     //executed when the player collides with a lethal object
     private void OnDeath(GameObject player)
     {
-        _rb.simulated = false;
-        player.transform.position = spawn.transform.position; //teleports player back to spawn point
-        Instantiate(replay, player.transform.position, Quaternion.Euler(Vector3.zero)); //spawn clone of player
+        
     }
 }
+
+
