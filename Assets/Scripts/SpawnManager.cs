@@ -3,39 +3,40 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    private Queue<Queue<PlayerController.Action>> _recordings;
-    private Queue<Queue<PlayerController.Action>> _loopRecordings;
+    private Queue<Queue<Action>> _recordings;
+    private Queue<Queue<Action>> _loopRecordings;
     [SerializeField] private GameObject player;
-    [SerializeField] private GameObject playerPlayback;
 
     private void Awake()
     {
-        _recordings = new Queue<Queue<PlayerController.Action>>();
-        _loopRecordings = new Queue<Queue<PlayerController.Action>>();
+        _recordings = new Queue<Queue<Action>>();
+        _loopRecordings = new Queue<Queue<Action>>();
     }
 
-    public void AddRecording(Queue<PlayerController.Action> actions)
+    public void AddRecording(Queue<Action> actions)
     {
         _recordings.Enqueue(actions); //add action queue to spawn queue
     }
 
     public void SpawnQueue()
     {
-        _loopRecordings = new Queue<Queue<PlayerController.Action>>(_recordings);
+        _loopRecordings = new Queue<Queue<Action>>(_recordings);
         AddNextItemInQueue();
     }
 
     private void AddNextItemInQueue()
     {
-        if (_loopRecordings.Count <= 0) return;
-        Transform tr = transform;
-        GameObject rec = Instantiate(playerPlayback, tr.position, tr.rotation);
-        rec.GetComponent<PlayerReplay>().Actions = _loopRecordings.Dequeue();
+        GameObject rec = Instantiate(player);
+        
+        PlayerController script = rec.GetComponent<PlayerController>();
+        script.RecordedActions = new Queue<Action>(_loopRecordings.Dequeue());
+        script.spawn = gameObject;
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.CompareTag("Recording")) AddNextItemInQueue();
+        Debug.Log(_loopRecordings.Count);
+        if (_loopRecordings.Count > 0) AddNextItemInQueue();
         else
         {
             player.GetComponent<Rigidbody2D>().simulated = true;
