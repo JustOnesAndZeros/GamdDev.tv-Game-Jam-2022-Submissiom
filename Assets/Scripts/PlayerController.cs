@@ -1,5 +1,6 @@
 using System;
 using JetBrains.Annotations;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -31,6 +32,10 @@ public class PlayerController : MonoBehaviour
         _playerInputActions.Enable();
 
         _horizontalMove = _playerInputActions.Movement.Horizontal;
+
+        _playerInputActions.Movement.Horizontal.started += OnMove;
+        _playerInputActions.Movement.Horizontal.performed += OnMove;
+        _playerInputActions.Movement.Horizontal.canceled += OnMove;
         
         _playerInputActions.Movement.Jump.started += OnJump;
 
@@ -40,6 +45,10 @@ public class PlayerController : MonoBehaviour
     //unsubscribes from events
     private void OnDisable()
     {
+        _playerInputActions.Movement.Horizontal.started -= OnMove;
+        _playerInputActions.Movement.Horizontal.performed -= OnMove;
+        _playerInputActions.Movement.Horizontal.canceled -= OnMove;
+        
         _playerInputActions.Movement.Jump.started -= OnJump;
         
         _playerInputActions.Disable();
@@ -47,15 +56,31 @@ public class PlayerController : MonoBehaviour
         KillOnContact.OnDeath -= OnDeath;
     }
     
+    // private void FixedUpdate()
+    // {
+    //     if (Math.Abs(_moveDirection - _horizontalMove.ReadValue<float>()) < .5f) return; //will not change direction if input hasn't changed
+    //     
+    //     //sets horizontal player movement
+    //     _moveDirection = _horizontalMove.ReadValue<float>();
+    //     if (!CheckDirection(new Vector2(_moveDirection, 0))) //will not move player if a wall is in that direction (prevents sticking to walls)
+    //     {
+    //         _rb.velocity = new Vector2(_horizontalMove.ReadValue<float>() * moveSpeed, _rb.velocity.y); //moves player 
+    //     }
+    // }
+
     private void FixedUpdate()
     {
-        if (Math.Abs(_moveDirection - _horizontalMove.ReadValue<float>()) > 0) return; //will not change direction if input hasn't changed
-        
+        Debug.Log(_rb.velocity.x);
+    }
+
+    private void OnMove(InputAction.CallbackContext ctx)
+    {
         //sets horizontal player movement
         _moveDirection = _horizontalMove.ReadValue<float>();
         if (!CheckDirection(new Vector2(_moveDirection, 0))) //will not move player if a wall is in that direction (prevents sticking to walls)
         {
-            _rb.velocity = new Vector2(_horizontalMove.ReadValue<float>() * moveSpeed, _rb.velocity.y); //moves player 
+            _rb.velocity = new Vector2(_horizontalMove.ReadValue<float>() * moveSpeed, _rb.velocity.y); //moves player
+            Debug.Log(_rb.velocity.x);
         }
     }
 
