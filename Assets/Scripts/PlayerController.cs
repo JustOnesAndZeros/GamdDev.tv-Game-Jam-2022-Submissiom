@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -89,7 +88,7 @@ public class PlayerController : MonoBehaviour
     {
         //sets horizontal player movement
         float moveDirection = ctx.ReadValue<float>();
-        if (CheckDirection(new Vector2(moveDirection, 0))) return; //will not move player if a wall is in that direction (prevents sticking to walls)
+        if (CheckDirection(new Vector2(moveDirection, 0), environment)) return; //will not move player if a wall is in that direction (prevents sticking to walls)
 
         _velocity = moveDirection * moveSpeed; //sets player velocity
         RecordedActions.Enqueue(new Action(_timePassed, 0, _velocity)); //records new direction and time to be replayed next loop
@@ -97,7 +96,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext ctx)
     {
-        if (!CheckDirection(Vector2.down)) return; //checks if player is touching the ground before jumping
+        if (!CheckDirection(Vector2.down, environment) && !CheckDirection(Vector2.down, LayerMask.GetMask("Player"))) return; //checks if player is touching the ground before jumping
         
         _rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse); //applies vertical force to player
         RecordedActions.Enqueue(new Action(_timePassed, 1, jumpForce)); //records jump force and time to be replayed next loop
@@ -105,10 +104,10 @@ public class PlayerController : MonoBehaviour
 
     //checks if the player is touching a wall in the specified direction
     //used for ground checks and to prevent sticking to walls
-    private bool CheckDirection(Vector2 direction)
+    private bool CheckDirection(Vector2 direction, LayerMask layer)
     {
         var bounds = _col.bounds;
-        return Physics2D.BoxCast(bounds.center, bounds.size, 0f, direction, .1f, environment);
+        return Physics2D.BoxCast(bounds.center, bounds.size, 0f, direction, .1f, layer);
     }
 
     //executed when the player collides with a lethal object
