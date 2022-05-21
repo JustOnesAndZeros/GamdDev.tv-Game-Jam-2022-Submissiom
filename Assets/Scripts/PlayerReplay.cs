@@ -7,7 +7,7 @@ public class PlayerReplay : MonoBehaviour
     private Rigidbody2D _rb;
     private Collider2D _col;
 
-    private Queue<float[]> _actions;
+    private Queue<PlayerController.Action> _actions;
     private float _timePassed;
     private float _velocity;
 
@@ -17,7 +17,7 @@ public class PlayerReplay : MonoBehaviour
         _col = GetComponent<Collider2D>();
 
         //copies recorded actions to replay and clears recording on player
-        _actions = new Queue<float[]>(PlayerController.RecordedActions);
+        _actions = new Queue<PlayerController.Action>(PlayerController.RecordedActions);
         PlayerController.RecordedActions.Clear();
     }
 
@@ -25,13 +25,13 @@ public class PlayerReplay : MonoBehaviour
     {
         _timePassed += Time.deltaTime;
         
-        if (!_actions.TryPeek(out float[] act)) return;
-        if (!(_timePassed >= act[0])) return;
+        if (!_actions.TryPeek(out PlayerController.Action act)) return;
+        if (!(_timePassed >= act.Time)) return;
         
-        switch (act[1]) //check action type
+        switch (act.ActionType) //check action type
         {
             case 0:
-                _velocity = act[2]; //set velocity
+                _velocity = act.Value; //set velocity
                 break;
             case 1:
                 Jump(act); //make player clone jump
@@ -47,10 +47,10 @@ public class PlayerReplay : MonoBehaviour
         _rb.velocity = new Vector2(_velocity, _rb.velocity.y);
     }
 
-    private void Jump(float[] act)
+    private void Jump(PlayerController.Action act)
     {
         //checks if player clone is touching the ground before jumping
-        if (CheckDirection(Vector2.down)) _rb.AddForce(Vector2.up * act[2], ForceMode2D.Impulse); //applies vertical force to player
+        if (CheckDirection(Vector2.down)) _rb.AddForce(Vector2.up * act.Value, ForceMode2D.Impulse); //applies vertical force to player
     }
 
     //checks if the player is touching a wall in the specified direction

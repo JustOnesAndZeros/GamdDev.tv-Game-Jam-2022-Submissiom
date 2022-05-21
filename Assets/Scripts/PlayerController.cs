@@ -16,8 +16,22 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpForce; //vertical impulse force for jumping
     private float _velocity;
 
+    public struct Action
+    {
+        public float Time;
+        public int ActionType;
+        public float Value;
+
+        public Action(float time, int actionType, float value)
+        {
+            Time = time;
+            ActionType = actionType;
+            Value = value;
+        }
+    }
+    
     private float _timePassed;
-    public static Queue<float[]> RecordedActions;
+    public static Queue<Action> RecordedActions;
 
     //get rigidbody and collider
     private void Awake()
@@ -25,7 +39,7 @@ public class PlayerController : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _col = GetComponent<Collider2D>();
         
-        RecordedActions = new Queue<float[]>();
+        RecordedActions = new Queue<Action>();
     }
 
     //enable user input and subscribe to events
@@ -79,7 +93,7 @@ public class PlayerController : MonoBehaviour
         if (CheckDirection(new Vector2(moveDirection, 0))) return; //will not move player if a wall is in that direction (prevents sticking to walls)
 
         _velocity = moveDirection * moveSpeed; //sets player velocity
-        RecordedActions.Enqueue(new[] {_timePassed, 0, _velocity}); //records new direction and time to be replayed next loop
+        RecordedActions.Enqueue(new Action(_timePassed, 0, _velocity)); //records new direction and time to be replayed next loop
     }
 
     private void OnJump(InputAction.CallbackContext ctx)
@@ -87,7 +101,7 @@ public class PlayerController : MonoBehaviour
         if (!CheckDirection(Vector2.down)) return; //checks if player is touching the ground before jumping
         
         _rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse); //applies vertical force to player
-        RecordedActions.Enqueue(new []{_timePassed, 1, jumpForce}); //records jump force and time to be replayed next loop
+        RecordedActions.Enqueue(new Action(_timePassed, 1, jumpForce)); //records jump force and time to be replayed next loop
     }
 
     //checks if the player is touching a wall in the specified direction
