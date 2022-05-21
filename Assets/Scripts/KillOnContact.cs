@@ -10,6 +10,6 @@ public class KillOnContact : MonoBehaviour
     
     private void OnCollisionEnter2D(Collision2D col)
     {
-        OnDeath?.Invoke(col.gameObject);
+        OnDeath?.Invoke(col.gameObject); //triggers player death event
     }
 }
