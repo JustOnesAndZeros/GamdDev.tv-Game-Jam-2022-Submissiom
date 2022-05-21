@@ -74,9 +74,10 @@ public class PlayerController : MonoBehaviour
         _timePassed += Time.deltaTime;
     }
 
-    private void FixedUpdate()
+    protected void FixedUpdate()
     {
-        _rb.velocity = new Vector2(_velocity, _rb.velocity.y);
+        //will not move player if a wall is in that direction (prevents sticking to walls)
+        if (CheckDirection(_velocity > 0 ? Vector2.right : Vector2.left))  _rb.velocity = new Vector2(_velocity, _rb.velocity.y);
     }
 
     private void OnMove(InputAction.CallbackContext ctx)
@@ -111,6 +112,7 @@ public class PlayerController : MonoBehaviour
         _rb.simulated = false;
         GetComponent<SpriteRenderer>().enabled = false;
         transform.position = spawn.transform.position;
+        
     }
 }
 
