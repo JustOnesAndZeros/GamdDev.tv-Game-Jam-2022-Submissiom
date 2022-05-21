@@ -1,6 +1,3 @@
-using System;
-using JetBrains.Annotations;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -40,6 +37,11 @@ public class PlayerController : MonoBehaviour
         _playerInputActions.Movement.Jump.started += OnJump;
 
         KillOnContact.OnDeath += OnDeath;
+    }
+
+    private void Start()
+    {
+        transform.position = spawn.transform.position; //spawns player at spawn point
     }
 
     //unsubscribes from events
