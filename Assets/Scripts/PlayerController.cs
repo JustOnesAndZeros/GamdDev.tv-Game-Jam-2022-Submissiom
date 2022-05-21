@@ -108,7 +108,9 @@ public class PlayerController : MonoBehaviour
     //executed when the player collides with a lethal object
     private void OnDeath(GameObject player)
     {
-        
+        _rb.simulated = false;
+        GetComponent<SpriteRenderer>().enabled = false;
+        transform.position = spawn.transform.position;
     }
 }
 
