@@ -55,23 +55,6 @@ public class PlayerController : MonoBehaviour
         
         KillOnContact.OnDeath -= OnDeath;
     }
-    
-    // private void FixedUpdate()
-    // {
-    //     if (Math.Abs(_moveDirection - _horizontalMove.ReadValue<float>()) < .5f) return; //will not change direction if input hasn't changed
-    //     
-    //     //sets horizontal player movement
-    //     _moveDirection = _horizontalMove.ReadValue<float>();
-    //     if (!CheckDirection(new Vector2(_moveDirection, 0))) //will not move player if a wall is in that direction (prevents sticking to walls)
-    //     {
-    //         _rb.velocity = new Vector2(_horizontalMove.ReadValue<float>() * moveSpeed, _rb.velocity.y); //moves player 
-    //     }
-    // }
-
-    private void FixedUpdate()
-    {
-        Debug.Log(_rb.velocity.x);
-    }
 
     private void OnMove(InputAction.CallbackContext ctx)
     {
@@ -80,7 +63,6 @@ public class PlayerController : MonoBehaviour
         if (!CheckDirection(new Vector2(_moveDirection, 0))) //will not move player if a wall is in that direction (prevents sticking to walls)
         {
             _rb.velocity = new Vector2(_horizontalMove.ReadValue<float>() * moveSpeed, _rb.velocity.y); //moves player
-            Debug.Log(_rb.velocity.x);
         }
     }
 
