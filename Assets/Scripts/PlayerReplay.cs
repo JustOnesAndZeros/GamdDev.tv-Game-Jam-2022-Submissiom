@@ -1,8 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerReplay : MonoBehaviour
 {
@@ -12,7 +9,6 @@ public class PlayerReplay : MonoBehaviour
 
     private Queue<float[]> _actions;
     private float _timePassed;
-    private float[] _act;
     private float _velocity;
 
     private void Awake()
@@ -23,24 +19,26 @@ public class PlayerReplay : MonoBehaviour
         //copies recorded actions to replay and clears recording on player
         _actions = new Queue<float[]>(PlayerController.RecordedActions);
         PlayerController.RecordedActions.Clear();
-        Debug.Log(_actions.Peek());
     }
 
     private void Update()
     {
         _timePassed += Time.deltaTime;
-        if (!(_timePassed >= _actions.Peek()[0])) return;
         
-        _act = _actions.Dequeue();
-        switch (_act[1])
+        if (!_actions.TryPeek(out float[] act)) return;
+        if (!(_timePassed >= act[0])) return;
+        
+        switch (act[1]) //check action type
         {
             case 0:
-                _velocity = _act[2];
+                _velocity = act[2]; //set velocity
                 break;
             case 1:
-                OnJump(new InputAction.CallbackContext());
+                Jump(act); //make player clone jump
                 break;
         }
+        
+        _actions.Dequeue(); //remove action from front of queue
     }
 
     private void FixedUpdate()
@@ -49,10 +47,10 @@ public class PlayerReplay : MonoBehaviour
         _rb.velocity = new Vector2(_velocity, _rb.velocity.y);
     }
 
-    private void OnJump(InputAction.CallbackContext ctx)
+    private void Jump(float[] act)
     {
-        if (!CheckDirection(Vector2.down)) return; //checks if player is touching the ground before jumping
-        _rb.AddForce(Vector2.up * _act[2], ForceMode2D.Impulse); //applies vertical force to player
+        //checks if player clone is touching the ground before jumping
+        if (CheckDirection(Vector2.down)) _rb.AddForce(Vector2.up * act[2], ForceMode2D.Impulse); //applies vertical force to player
     }
 
     //checks if the player is touching a wall in the specified direction
