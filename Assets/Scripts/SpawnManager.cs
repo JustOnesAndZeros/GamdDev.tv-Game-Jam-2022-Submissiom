@@ -3,8 +3,11 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
+    public static float LoopTime;
+    
     private Queue<Queue<Action>> _recordings;
     private Queue<Queue<Action>> _loopRecordings;
+    
     [SerializeField] private GameObject player;
     [SerializeField] private GameObject playerClone;
 
@@ -12,6 +15,11 @@ public class SpawnManager : MonoBehaviour
     {
         _recordings = new Queue<Queue<Action>>();
         _loopRecordings = new Queue<Queue<Action>>();
+    }
+
+    private void Update()
+    {
+        LoopTime += Time.deltaTime;
     }
 
     public void AddRecording(Queue<Action> actions)
@@ -25,19 +33,16 @@ public class SpawnManager : MonoBehaviour
         AddNextItemInQueue();
     }
 
-    private void AddNextItemInQueue()
+    public void AddNextItemInQueue()
     {
-        GameObject rec = Instantiate(playerClone);
+        if (_loopRecordings.Count > 0)
+        {
+            GameObject rec = Instantiate(playerClone);
         
-        PlayerController script = rec.GetComponent<PlayerController>();
-        script.RecordedActions = new Queue<Action>(_loopRecordings.Dequeue());
-        script.spawn = gameObject;
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        Debug.Log(_loopRecordings.Count);
-        if (_loopRecordings.Count > 0) AddNextItemInQueue();
+            PlayerController script = rec.GetComponent<PlayerController>();
+            script.RecordedActions = new Queue<Action>(_loopRecordings.Dequeue());
+            script.spawn = gameObject;
+        }
         else
         {
             player.GetComponent<Rigidbody2D>().simulated = true;

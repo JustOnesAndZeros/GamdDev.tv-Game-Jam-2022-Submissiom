@@ -32,8 +32,8 @@ public class PlayerController : MonoBehaviour
 
     private float _velocity;
     
-    private float _timePassed;
     public Queue<Action> RecordedActions;
+    private bool _leftSpawn;
 
     private void Awake()
     {
@@ -83,14 +83,12 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         if (isPlayback) PlayRecording();
-
-        _timePassed += Time.deltaTime;
     }
 
     private void PlayRecording()
     {
         var act = RecordedActions.Peek();
-        if (!(_timePassed >= act.Time)) return;
+        if (!(SpawnManager.LoopTime >= act.Time)) return;
 
         switch (act.ActionType)
         {
@@ -117,7 +115,7 @@ public class PlayerController : MonoBehaviour
     private void Move(float direction)
     {
         _velocity = direction * moveSpeed; //sets player velocity
-        RecordedActions.Enqueue(new Action(_timePassed, 0, direction)); //records new direction and time to be replayed next loop
+        RecordedActions.Enqueue(new Action(SpawnManager.LoopTime, 0, direction)); //records new direction and time to be replayed next loop
     }
 
     private void OnJump(InputAction.CallbackContext ctx) { Jump(); }
@@ -127,7 +125,7 @@ public class PlayerController : MonoBehaviour
         if (!(CheckDirection(Vector2.down, environmentLayer) || CheckDirection(Vector2.down, playerLayer))) return; //checks if player is touching the ground before jumping
         
         _rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse); //applies vertical force to player
-        RecordedActions.Enqueue(new Action(_timePassed, 1, jumpForce)); //records jump force and time to be replayed next loop
+        RecordedActions.Enqueue(new Action(SpawnManager.LoopTime, 1, jumpForce)); //records jump force and time to be replayed next loop
     }
 
     //checks if the player is touching a wall in the specified direction (used for ground checks and to prevent sticking to walls)
@@ -151,14 +149,21 @@ public class PlayerController : MonoBehaviour
         transform.position = spawn.transform.position;
         
         //add recording to spawn queue
-        RecordedActions.Enqueue(new Action(_timePassed, 0, 0f)); //stop horizontal movement
+        RecordedActions.Enqueue(new Action(SpawnManager.LoopTime, 0, 0f)); //stop horizontal movement
         spawn.GetComponent<SpawnManager>().AddRecording(RecordedActions); //add to queue
 
         //clear recording queue
         RecordedActions = new Queue<Action>();
-        _timePassed = 0;
+        SpawnManager.LoopTime = 0;
         
         spawn.GetComponent<SpawnManager>().SpawnQueue(); //start spawning in queue
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (!other.CompareTag("Respawn") || _leftSpawn) return;
+        other.GetComponent<SpawnManager>().AddNextItemInQueue();
+        _leftSpawn = true;
     }
 }
 
