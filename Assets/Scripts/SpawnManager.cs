@@ -1,37 +1,45 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    private Queue<GameObject> _recordings;
+    private Queue<Queue<PlayerController.Action>> _recordings;
+    private Queue<Queue<PlayerController.Action>> _loopRecordings;
     [SerializeField] private GameObject player;
     [SerializeField] private GameObject playerPlayback;
 
     private void Awake()
     {
-        _recordings = new Queue<GameObject>();
+        _recordings = new Queue<Queue<PlayerController.Action>>();
+        _loopRecordings = new Queue<Queue<PlayerController.Action>>();
     }
 
     public void AddRecording(Queue<PlayerController.Action> actions)
     {
-        GameObject rec = playerPlayback;
-        rec.GetComponent<PlayerReplay>().Actions = actions;
-        _recordings.Enqueue(rec);
+        _recordings.Enqueue(actions); //add action queue to spawn queue
     }
-    
-    public void AddNextItemInQueue()
+
+    public void SpawnQueue()
     {
-        if (_recordings.Count > 0) Instantiate(_recordings.Dequeue(), transform.position, transform.rotation);
+        _loopRecordings = new Queue<Queue<PlayerController.Action>>(_recordings);
+        AddNextItemInQueue();
+    }
+
+    private void AddNextItemInQueue()
+    {
+        if (_loopRecordings.Count <= 0) return;
+        Transform tr = transform;
+        GameObject rec = Instantiate(playerPlayback, tr.position, tr.rotation);
+        rec.GetComponent<PlayerReplay>().Actions = _loopRecordings.Dequeue();
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Recording")) AddNextItemInQueue();
         else
         {
             player.GetComponent<Rigidbody2D>().simulated = true;
             player.GetComponent<SpriteRenderer>().enabled = true;
         }
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        AddNextItemInQueue();
     }
 }

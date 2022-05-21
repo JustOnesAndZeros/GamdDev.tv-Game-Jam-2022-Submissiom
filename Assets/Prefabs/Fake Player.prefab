@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 3927009659060656520}
   - component: {fileID: -5591505564049582064}
   - component: {fileID: -7898996975374180684}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Fake Player
-  m_TagString: Untagged
+  m_TagString: Recording
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

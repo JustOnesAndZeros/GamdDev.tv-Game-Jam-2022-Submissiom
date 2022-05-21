@@ -15,30 +15,29 @@ public class PlayerReplay : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody2D>();
         _col = GetComponent<Collider2D>();
-
-        //copies recorded actions to replay and clears recording on player
-        Actions = new Queue<PlayerController.Action>(PlayerController.RecordedActions);
-        PlayerController.RecordedActions.Clear();
     }
 
     private void Update()
     {
-        _timePassed += Time.deltaTime;
-        
-        if (!Actions.TryPeek(out PlayerController.Action act)) return;
-        if (!(_timePassed >= act.Time)) return;
-        
-        switch (act.ActionType) //check action type
+        if (Actions.TryPeek(out PlayerController.Action act))
         {
-            case 0:
-                _velocity = act.Value; //set velocity
-                break;
-            case 1:
-                Jump(act); //make player clone jump
-                break;
+            if (_timePassed >= act.Time)
+            {
+                switch (act.ActionType) //check action type
+                {
+                    case 0:
+                        _velocity = act.Value; //set velocity
+                        break;
+                    case 1:
+                        Jump(act); //make player clone jump
+                        break;
+                }
+            }
+            
+            Actions.Dequeue(); //remove action from front of queue
         }
         
-        Actions.Dequeue(); //remove action from front of queue
+        _timePassed += Time.deltaTime;
     }
 
     private void FixedUpdate()

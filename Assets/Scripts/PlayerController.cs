@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,7 +10,8 @@ public class PlayerController : MonoBehaviour
     private PlayerInputActions _playerInputActions;
 
     [SerializeField] private GameObject spawn; //spawn object
-    [SerializeField] private LayerMask environment; //layer to check with boxcast
+    [SerializeField] private LayerMask environmentLayer; //layer to check with boxcast
+    [SerializeField] private LayerMask playerLayer; //layer to check with boxcast
     [Space]
     [SerializeField] private float moveSpeed; //horizontal movement speed
     [SerializeField] private float jumpForce; //vertical impulse force for jumping
@@ -76,7 +78,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        _timePassed += Time.deltaTime;
+        if (RecordedActions.Count > 0) _timePassed += Time.deltaTime;
     }
 
     private void FixedUpdate()
@@ -88,7 +90,7 @@ public class PlayerController : MonoBehaviour
     {
         //sets horizontal player movement
         float moveDirection = ctx.ReadValue<float>();
-        if (CheckDirection(new Vector2(moveDirection, 0), environment)) return; //will not move player if a wall is in that direction (prevents sticking to walls)
+        if (CheckDirection(new Vector2(moveDirection, 0), environmentLayer)) return; //will not move player if a wall is in that direction (prevents sticking to walls)
 
         _velocity = moveDirection * moveSpeed; //sets player velocity
         RecordedActions.Enqueue(new Action(_timePassed, 0, _velocity)); //records new direction and time to be replayed next loop
@@ -96,7 +98,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext ctx)
     {
-        if (!CheckDirection(Vector2.down, environment) && !CheckDirection(Vector2.down, LayerMask.GetMask("Player"))) return; //checks if player is touching the ground before jumping
+        if (!(CheckDirection(Vector2.down, environmentLayer) || CheckDirection(Vector2.down, playerLayer))) return; //checks if player is touching the ground before jumping
         
         _rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse); //applies vertical force to player
         RecordedActions.Enqueue(new Action(_timePassed, 1, jumpForce)); //records jump force and time to be replayed next loop
@@ -113,11 +115,23 @@ public class PlayerController : MonoBehaviour
     //executed when the player collides with a lethal object
     private void OnDeath(GameObject player)
     {
+        //destroy all recordings
+        foreach (GameObject rec in GameObject.FindGameObjectsWithTag("Recording")) Destroy(rec);
+        
+        //hide player and move to spawn
         _rb.simulated = false;
         GetComponent<SpriteRenderer>().enabled = false;
         transform.position = spawn.transform.position;
-        spawn.GetComponent<SpawnManager>().AddRecording(RecordedActions);
-        spawn.GetComponent<SpawnManager>().AddNextItemInQueue();
+        
+        //add recording to spawn queue
+        RecordedActions.Enqueue(new Action(_timePassed, 0, 0f)); //stop horizontal movement
+        spawn.GetComponent<SpawnManager>().AddRecording(RecordedActions); //add to queue
+
+        //clear recording queue
+        RecordedActions.Clear();
+        _timePassed = 0;
+        
+        spawn.GetComponent<SpawnManager>().SpawnQueue(); //start spawning in queue
     }
 }
 
