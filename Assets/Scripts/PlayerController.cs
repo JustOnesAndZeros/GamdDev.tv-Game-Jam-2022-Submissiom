@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -68,16 +69,20 @@ public class PlayerController : MonoBehaviour
         
         KillOnContact.OnDeath -= OnDeath;
     }
-    
+
+    private void Start()
+    {
+        transform.position = spawn.transform.position;
+    }
+
     private void Update()
     {
         _timePassed += Time.deltaTime;
     }
 
-    protected void FixedUpdate()
+    private void FixedUpdate()
     {
-        //will not move player if a wall is in that direction (prevents sticking to walls)
-        if (CheckDirection(_velocity > 0 ? Vector2.right : Vector2.left))  _rb.velocity = new Vector2(_velocity, _rb.velocity.y);
+        _rb.velocity = new Vector2(_velocity, _rb.velocity.y);
     }
 
     private void OnMove(InputAction.CallbackContext ctx)
@@ -112,7 +117,8 @@ public class PlayerController : MonoBehaviour
         _rb.simulated = false;
         GetComponent<SpriteRenderer>().enabled = false;
         transform.position = spawn.transform.position;
-        
+        spawn.GetComponent<SpawnManager>().AddRecording(RecordedActions);
+        spawn.GetComponent<SpawnManager>().AddNextItemInQueue();
     }
 }
 
