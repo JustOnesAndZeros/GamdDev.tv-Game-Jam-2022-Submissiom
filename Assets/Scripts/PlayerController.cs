@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,6 +14,7 @@ public class PlayerController : MonoBehaviour
     [Space]
     [SerializeField] private float moveSpeed; //horizontal movement speed
     [SerializeField] private float jumpForce; //vertical impulse force for jumping
+    private float _velocity;
 
     private float _timePassed;
     private Queue<float[]> _playerActions;
@@ -65,15 +67,19 @@ public class PlayerController : MonoBehaviour
         _timePassed += Time.deltaTime;
     }
 
+    private void FixedUpdate()
+    {
+        _rb.velocity = new Vector2(_velocity, _rb.velocity.y);
+    }
+
     private void OnMove(InputAction.CallbackContext ctx)
     {
         //sets horizontal player movement
         float moveDirection = ctx.ReadValue<float>();
         if (CheckDirection(new Vector2(moveDirection, 0))) return; //will not move player if a wall is in that direction (prevents sticking to walls)
 
-        Vector2 velocity = new Vector2(moveDirection * moveSpeed, _rb.velocity.y);
-        _rb.velocity = velocity;
-        _playerActions.Enqueue(new[] {_timePassed, 0, velocity.x}); //records new direction and time to be replayed next loop
+        _velocity = moveDirection * moveSpeed; //sets player velocity
+        _playerActions.Enqueue(new[] {_timePassed, 0, _velocity}); //records new direction and time to be replayed next loop
     }
 
     private void OnJump(InputAction.CallbackContext ctx)
@@ -95,6 +101,6 @@ public class PlayerController : MonoBehaviour
     //executed when the player collides with a lethal object
     private void OnDeath(GameObject player)
     {
-        transform.position = spawn.transform.position; //teleports player back to spawn point
+        player.transform.position = spawn.transform.position; //teleports player back to spawn point
     }
 }
