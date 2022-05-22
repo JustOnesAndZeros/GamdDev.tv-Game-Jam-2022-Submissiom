@@ -41,6 +41,7 @@ public class CloneController : Player
                     break;
                 default:
                     Move(0);
+                    enabled = false;
                     break;
             }
 

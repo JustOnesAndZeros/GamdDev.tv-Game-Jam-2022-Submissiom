@@ -27,7 +27,7 @@ public class Player : MonoBehaviour
     
     [SerializeField] protected float moveSpeed; //horizontal movement speed
     [SerializeField] protected float jumpForce; //vertical impulse force for jumping
-
+    private float _moveDirection;
 
     private void Awake()
     {
@@ -41,11 +41,16 @@ public class Player : MonoBehaviour
         SpawnScript = spawn.GetComponent<SpawnManager>();
     }
 
+    private void FixedUpdate()
+    {
+        Rb.velocity = new Vector2(_moveDirection * moveSpeed, Rb.velocity.y); //sets player velocity
+    }
+
     //sets horizontal player movement
     protected void Move(float direction)
     {
         //will not move player if a wall is in that direction (prevents sticking to walls)
-        if (!CheckDirection(Vector2.right * direction, environmentLayer)) Rb.velocity = new Vector2(direction * moveSpeed, Rb.velocity.y); //sets player velocity
+        if (!CheckDirection(Vector2.right * direction, environmentLayer)) _moveDirection = direction;
     }
 
     protected void Jump(float force)
