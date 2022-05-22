@@ -30,6 +30,9 @@ public class Player : MonoBehaviour
     [SerializeField] protected float moveSpeed; //horizontal movement speed
     [SerializeField] protected float jumpForce; //vertical impulse force for jumping
     private float _moveDirection;
+    
+    private bool _canMove;
+    private bool _canJump;
 
     private void Awake()
     {
@@ -45,7 +48,7 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!CheckDirection(Vector2.right * _moveDirection, environmentLayer)) Rb.velocity = new Vector2(_moveDirection * moveSpeed, Rb.velocity.y); //sets player velocity
+        if (_canMove) Rb.velocity = new Vector2(_moveDirection * moveSpeed, Rb.velocity.y); //sets player velocity
     }
 
     //sets horizontal player movement
@@ -58,12 +61,16 @@ public class Player : MonoBehaviour
     protected void Jump(float force)
     {
         //checks if player is touching the ground before jumping
-        if (CheckDirection(Vector2.down, environmentLayer)) Rb.AddForce(Vector2.up * force, ForceMode2D.Impulse); //applies vertical force to player
+        if (_canJump) Rb.AddForce(Vector2.up * force, ForceMode2D.Impulse); //applies vertical force to player
     }
 
-    protected virtual void OnCollisionEnter2D(Collision2D col)
+    protected virtual void OnCollisionEnter2D(Collision2D col) { CheckAllDirections(); }
+    protected virtual void OnCollisionExit2D(Collision2D other) { CheckAllDirections(); }
+
+    private void CheckAllDirections()
     {
-        Debug.Log("collided");
+        _canMove = !CheckDirection(Vector2.right * _moveDirection, environmentLayer);
+        _canJump = CheckDirection(Vector2.down, environmentLayer);
     }
 
     //checks if the player is touching a wall in the specified direction (used for ground checks and to prevent sticking to walls)
