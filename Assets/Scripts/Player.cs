@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 
 public struct Action
@@ -43,14 +44,14 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Rb.velocity = new Vector2(_moveDirection * moveSpeed, Rb.velocity.y); //sets player velocity
+        if (!CheckDirection(Vector2.right * _moveDirection, environmentLayer)) Rb.velocity = new Vector2(_moveDirection * moveSpeed, Rb.velocity.y); //sets player velocity
     }
 
     //sets horizontal player movement
     protected void Move(float direction)
     {
         //will not move player if a wall is in that direction (prevents sticking to walls)
-        if (!CheckDirection(Vector2.right * direction, environmentLayer)) _moveDirection = direction;
+        _moveDirection = direction;
     }
 
     protected void Jump(float force)
@@ -63,6 +64,7 @@ public class Player : MonoBehaviour
     private bool CheckDirection(Vector2 direction, LayerMask layer)
     {
         var bounds = _col.bounds;
-        return Physics2D.BoxCast(bounds.center, bounds.size, 0f, direction, .1f, layer);
+        var boxCast = Physics2D.BoxCastAll(bounds.center, bounds.size, 0f, direction, .1f, layer);
+        return boxCast.Any(hit => hit.collider.gameObject != gameObject);
     }
 }
