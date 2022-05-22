@@ -54,8 +54,10 @@ public class PlayerController : Player
         Rb.simulated = b;
     }
 
-    private void OnCollisionEnter2D(Collision2D col)
+    protected override void OnCollisionEnter2D(Collision2D col)
     {
+       base.OnCollisionEnter2D(col);
+        
         if (!col.gameObject.CompareTag("Lethal")) return;
         
         //destroy all clones

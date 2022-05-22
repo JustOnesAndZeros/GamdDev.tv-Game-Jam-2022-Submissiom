@@ -25,6 +25,7 @@ public class Player : MonoBehaviour
     protected SpawnManager SpawnScript;
     
     [SerializeField] private LayerMask environmentLayer; //layer to check with boxcast
+    [SerializeField] private LayerMask playerLayer; //layer to check with boxcast
     
     [SerializeField] protected float moveSpeed; //horizontal movement speed
     [SerializeField] protected float jumpForce; //vertical impulse force for jumping
@@ -60,11 +61,16 @@ public class Player : MonoBehaviour
         if (CheckDirection(Vector2.down, environmentLayer)) Rb.AddForce(Vector2.up * force, ForceMode2D.Impulse); //applies vertical force to player
     }
 
+    protected virtual void OnCollisionEnter2D(Collision2D col)
+    {
+        Debug.Log("collided");
+    }
+
     //checks if the player is touching a wall in the specified direction (used for ground checks and to prevent sticking to walls)
     private bool CheckDirection(Vector2 direction, LayerMask layer)
     {
         var bounds = _col.bounds;
-        var boxCast = Physics2D.BoxCastAll(bounds.center, bounds.size, 0f, direction, .1f, layer);
+        RaycastHit2D[] boxCast = Physics2D.BoxCastAll(bounds.center, bounds.size, 0f, direction, .1f, layer);
         return boxCast.Any(hit => hit.collider.gameObject != gameObject);
     }
 }

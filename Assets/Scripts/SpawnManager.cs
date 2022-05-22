@@ -33,7 +33,6 @@ public class SpawnManager : MonoBehaviour
 
     public void AddToQueue(Queue<Action> actions)
     {
-        Debug.Log(actions.Count);
         _clones.Enqueue(new Queue<Action>(actions));
     }
 

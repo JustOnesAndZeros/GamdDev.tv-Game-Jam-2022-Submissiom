@@ -23,7 +23,6 @@ public class CloneController : Player
     public void Reset()
     {
         _currentActions = new Queue<Action>(Actions);
-        Debug.Log(Actions.Count);
     }
 
     private void PlayRecording()
