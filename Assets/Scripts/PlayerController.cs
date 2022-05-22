@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +10,7 @@ public class PlayerController : Player
     private Queue<Action> _recordedActions;
 
     private int _actionCount;
+    private bool _hasLeftSpawn;
     
     //enable user input and subscribe to events
     private void OnEnable()
@@ -51,29 +51,40 @@ public class PlayerController : Player
         _recordedActions.Enqueue(new Action(SpawnManager.LoopTime, 1, jumpForce)); //records jump force and time to be replayed next loop
     }
 
-    private void Reset()
+    public void SetControllable(bool b)
     {
-        transform.position = spawn.transform.position;
-        GetComponent<SpriteRenderer>().enabled = false;
-        _rb.simulated = false;
+        GetComponent<SpriteRenderer>().enabled = b;
+        Rb.simulated = b;
     }
 
     private void OnCollisionEnter2D(Collision2D col)
     {
         if (!col.gameObject.CompareTag("Lethal")) return;
         
-        //move back to spawn
-        foreach (var p in GameObject.FindGameObjectsWithTag("Clone"))
+        //destroy all clones
+        foreach (var c in GameObject.FindGameObjectsWithTag("Clone"))
         {
-            //reset and hide game object
-            p.GetComponent<CloneController>().Reset();
+            Destroy(c.gameObject);
         }
 
         Reset();
-        
+
         spawn.GetComponent<SpawnManager>().AddToQueue(_recordedActions);
         spawn.GetComponent<SpawnManager>().Reset();
-        spawn.GetComponent<SpawnManager>().SpawnNextItemInQueue();
+    }
+
+    private void Reset()
+    {
+        _hasLeftSpawn = false;
+        transform.position = spawn.transform.position;
+        SetControllable(false);
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (!other.gameObject.CompareTag("Respawn") || _hasLeftSpawn) return;
+        _hasLeftSpawn = true;
+        SpawnManager.SpawnTimes.Enqueue(SpawnManager.LoopTime);
     }
 }
 

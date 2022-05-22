@@ -1,61 +1,57 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    public static float LoopTime;
-    
     [SerializeField] private GameObject player;
-    [SerializeField] private GameObject playerClone;
-    private GameObject _currentPlayer;
+    [SerializeField] private GameObject clonePrefab;
 
-    private Queue<GameObject> _spawnQueue;
-    private Queue<GameObject> _currentSpawnQueue;
+    private static Queue<Queue<Action>> _clones;
+    private Queue<Queue<Action>> _currentClones;
+
+    public static Queue<float> SpawnTimes;
+
+    public static float LoopTime;
 
     private void Awake()
     {
-        _spawnQueue = new Queue<GameObject>();
-        _currentSpawnQueue = new Queue<GameObject>();
-    }
-
-    private void Start()
-    {
-        _currentPlayer = Instantiate(player);
-        _currentPlayer.GetComponent<PlayerController>().spawn = gameObject;
-        _currentPlayer.SetActive(true);
-    }
-
-    private void Update()
-    {
-        LoopTime += Time.deltaTime;
+        _clones = new Queue<Queue<Action>>();
+        _currentClones = new Queue<Queue<Action>>();
+        SpawnTimes = new Queue<float>();
+        SpawnTimes.Enqueue(0f);
     }
 
     public void Reset()
     {
+        _currentClones = new Queue<Queue<Action>>(_clones);
         LoopTime = 0;
-        _currentSpawnQueue = new Queue<GameObject>(_spawnQueue);
     }
 
-    public void AddToQueue(IEnumerable<Action> actions)
+    public void AddToQueue(Queue<Action> actions)
     {
-        GameObject clone = Instantiate(playerClone);
-        clone.GetComponent<CloneController>().Actions = new Queue<Action>(actions);
-        clone.GetComponent<CloneController>().spawn = gameObject;
-        clone.GetComponent<CloneController>().Reset();
-        _spawnQueue.Enqueue(clone);
+        _clones.Enqueue(new Queue<Action>(actions));
     }
 
-    public void SpawnNextItemInQueue()
+    private void Update()
     {
-        if (_currentSpawnQueue.TryDequeue(out GameObject p))
+        if (SpawnTimes.TryPeek(out float t))
         {
-            p.GetComponent<Rigidbody2D>().simulated = true;
-            p.GetComponent<CloneController>().enabled = true;
+            if (LoopTime >= t)
+            {
+                if (_currentClones.TryDequeue(out Queue<Action> q))
+                {
+                    GameObject g = Instantiate(clonePrefab);
+                    g.GetComponent<CloneController>().Actions = new Queue<Action>(q);
+                    g.GetComponent<CloneController>().spawn = gameObject;
+                }
+                else
+                {
+                    player.GetComponent<PlayerController>().SetControllable(true);
+                }
+            }
         }
-        else
-        {
-            _currentPlayer.GetComponent<SpriteRenderer>().enabled = true;
-            _currentPlayer.GetComponent<Rigidbody2D>().simulated = true;
-        }
+
+        LoopTime += Time.deltaTime;
     }
 }

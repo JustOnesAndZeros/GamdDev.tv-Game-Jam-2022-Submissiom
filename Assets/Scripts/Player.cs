@@ -16,7 +16,7 @@ public struct Action
 
 public class Player : MonoBehaviour
 {
-    protected Rigidbody2D _rb;
+    protected Rigidbody2D Rb;
     private Collider2D _col;
 
     public GameObject spawn; //spawn object
@@ -28,7 +28,7 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        _rb = GetComponent<Rigidbody2D>();
+        Rb = GetComponent<Rigidbody2D>();
         _col = GetComponent<Collider2D>();
     }
 
@@ -41,13 +41,13 @@ public class Player : MonoBehaviour
     protected void Move(float direction)
     {
         //will not move player if a wall is in that direction (prevents sticking to walls)
-        if (!CheckDirection(Vector2.right * direction, environmentLayer)) _rb.velocity = new Vector2(direction * moveSpeed, _rb.velocity.y); //sets player velocity
+        if (!CheckDirection(Vector2.right * direction, environmentLayer)) Rb.velocity = new Vector2(direction * moveSpeed, Rb.velocity.y); //sets player velocity
     }
 
     protected void Jump(float force)
     {
         //checks if player is touching the ground before jumping
-        if (CheckDirection(Vector2.down, environmentLayer)) _rb.AddForce(Vector2.up * force, ForceMode2D.Impulse); //applies vertical force to player
+        if (CheckDirection(Vector2.down, environmentLayer)) Rb.AddForce(Vector2.up * force, ForceMode2D.Impulse); //applies vertical force to player
     }
 
     //checks if the player is touching a wall in the specified direction (used for ground checks and to prevent sticking to walls)
