@@ -71,6 +71,8 @@ public class Player : MonoBehaviour
     {
         _canMove = !CheckDirection(Vector2.right * _moveDirection, environmentLayer);
         _canJump = CheckDirection(Vector2.down, environmentLayer);
+        
+        
     }
 
     //checks if the player is touching a wall in the specified direction (used for ground checks and to prevent sticking to walls)
