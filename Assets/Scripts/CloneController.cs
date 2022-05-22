@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CloneController : Player
 {
     public Queue<Action> Actions;
     private Queue<Action> _currentActions;
-    
+
     private bool _hasLeftSpawn;
 
     private void Update()
@@ -19,11 +20,17 @@ public class CloneController : Player
         _currentActions = new Queue<Action>();
     }
 
+    public void Reset()
+    {
+        _currentActions = new Queue<Action>(Actions);
+        Debug.Log(Actions.Count);
+    }
+
     private void PlayRecording()
     {
         if (_currentActions.TryPeek(out Action act))
         {
-            if (SpawnManager.LoopTime < act.Time) return;
+            if (SpawnScript.timePassed < act.Time) return;
             switch (act.ActionType)
             {
                 case 0:
@@ -32,13 +39,19 @@ public class CloneController : Player
                 case 1:
                     Jump(act.Value);
                     break;
+                default:
+                    Move(0);
+                    break;
             }
 
             _currentActions.Dequeue();
         }
-        else
-        {
-            Move(0);
-        }
+    }
+    
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (!other.gameObject.CompareTag("Respawn") || _hasLeftSpawn) return;
+        spawn.GetComponent<SpawnManager>().SpawnNextInQueue();
+        _hasLeftSpawn = true;
     }
 }

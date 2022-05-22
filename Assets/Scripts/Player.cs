@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public struct Action
 {
@@ -20,11 +21,13 @@ public class Player : MonoBehaviour
     private Collider2D _col;
 
     public GameObject spawn; //spawn object
+    protected SpawnManager SpawnScript;
     
     [SerializeField] private LayerMask environmentLayer; //layer to check with boxcast
     
     [SerializeField] protected float moveSpeed; //horizontal movement speed
     [SerializeField] protected float jumpForce; //vertical impulse force for jumping
+
 
     private void Awake()
     {
@@ -35,6 +38,7 @@ public class Player : MonoBehaviour
     private void Start()
     {
         transform.position = spawn.transform.position;
+        SpawnScript = spawn.GetComponent<SpawnManager>();
     }
 
     //sets horizontal player movement

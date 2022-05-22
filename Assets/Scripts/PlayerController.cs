@@ -8,9 +8,6 @@ public class PlayerController : Player
     private PlayerInputActions _playerInputActions;
 
     private Queue<Action> _recordedActions;
-
-    private int _actionCount;
-    private bool _hasLeftSpawn;
     
     //enable user input and subscribe to events
     private void OnEnable()
@@ -42,13 +39,13 @@ public class PlayerController : Player
     {
         float direction = ctx.ReadValue<float>();
         Move(direction); 
-        _recordedActions.Enqueue(new Action(SpawnManager.LoopTime, 0, direction)); //records new direction and time to be replayed next loop
+        _recordedActions.Enqueue(new Action(SpawnScript.timePassed, 0, direction)); //records new direction and time to be replayed next loop
     }
 
     private void OnJump(InputAction.CallbackContext ctx)
     {
         Jump(jumpForce);
-        _recordedActions.Enqueue(new Action(SpawnManager.LoopTime, 1, jumpForce)); //records jump force and time to be replayed next loop
+        _recordedActions.Enqueue(new Action(SpawnScript.timePassed, 1, jumpForce)); //records jump force and time to be replayed next loop
     }
 
     public void SetControllable(bool b)
@@ -66,25 +63,19 @@ public class PlayerController : Player
         {
             Destroy(c.gameObject);
         }
-
-        Reset();
-
+        
+        _recordedActions.Enqueue(new Action(SpawnScript.timePassed, -1, -1));
         spawn.GetComponent<SpawnManager>().AddToQueue(_recordedActions);
         spawn.GetComponent<SpawnManager>().Reset();
+        
+        Reset();
     }
 
     private void Reset()
     {
-        _hasLeftSpawn = false;
+        _recordedActions = new Queue<Action>();
         transform.position = spawn.transform.position;
         SetControllable(false);
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (!other.gameObject.CompareTag("Respawn") || _hasLeftSpawn) return;
-        _hasLeftSpawn = true;
-        SpawnManager.SpawnTimes.Enqueue(SpawnManager.LoopTime);
     }
 }
 
