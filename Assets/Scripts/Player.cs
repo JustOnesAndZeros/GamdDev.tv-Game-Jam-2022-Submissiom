@@ -64,10 +64,10 @@ public class Player : MonoBehaviour
         if (_canJump) Rb.AddForce(Vector2.up * force, ForceMode2D.Impulse); //applies vertical force to player
     }
 
-    protected virtual void OnCollisionEnter2D(Collision2D col) { CheckAllDirections(); }
-    protected virtual void OnCollisionExit2D(Collision2D other) { CheckAllDirections(); }
+    protected virtual void OnCollisionEnter2D(Collision2D col) { CheckAllDirections(col); }
+    protected virtual void OnCollisionExit2D(Collision2D other) { CheckAllDirections(other); }
 
-    private void CheckAllDirections()
+    private void CheckAllDirections(Collision2D col)
     {
         _canMove = !CheckDirection(Vector2.right * _moveDirection, environmentLayer);
         _canJump = CheckDirection(Vector2.down, environmentLayer);
@@ -77,6 +77,7 @@ public class Player : MonoBehaviour
     private bool CheckDirection(Vector2 direction, LayerMask layer)
     {
         var bounds = _col.bounds;
+        // ReSharper disable once Unity.PreferNonAllocApi
         RaycastHit2D[] boxCast = Physics2D.BoxCastAll(bounds.center, bounds.size, 0f, direction, .1f, layer);
         return boxCast.Any(hit => hit.collider.gameObject != gameObject);
     }

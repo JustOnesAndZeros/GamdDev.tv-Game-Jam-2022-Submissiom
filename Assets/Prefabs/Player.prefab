@@ -263,7 +263,7 @@ Rigidbody2D:
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: a6b53194578ba254291c59cc5533ea61, type: 2}
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 1
@@ -309,7 +309,7 @@ MonoBehaviour:
   spawn: {fileID: 0}
   environmentLayer:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 72
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
