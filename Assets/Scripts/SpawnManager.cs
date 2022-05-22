@@ -5,16 +5,24 @@ public class SpawnManager : MonoBehaviour
 {
     public static float LoopTime;
     
-    private Queue<Queue<Action>> _recordings;
-    private Queue<Queue<Action>> _loopRecordings;
-    
     [SerializeField] private GameObject player;
     [SerializeField] private GameObject playerClone;
+    private GameObject _currentPlayer;
+
+    private Queue<GameObject> _spawnQueue;
+    private Queue<GameObject> _currentSpawnQueue;
 
     private void Awake()
     {
-        _recordings = new Queue<Queue<Action>>();
-        _loopRecordings = new Queue<Queue<Action>>();
+        _spawnQueue = new Queue<GameObject>();
+        _currentSpawnQueue = new Queue<GameObject>();
+    }
+
+    private void Start()
+    {
+        _currentPlayer = Instantiate(player);
+        _currentPlayer.GetComponent<PlayerController>().spawn = gameObject;
+        _currentPlayer.SetActive(true);
     }
 
     private void Update()
@@ -22,31 +30,32 @@ public class SpawnManager : MonoBehaviour
         LoopTime += Time.deltaTime;
     }
 
-    public void AddRecording(Queue<Action> actions)
+    public void Reset()
     {
-        _recordings.Enqueue(actions); //add action queue to spawn queue
+        LoopTime = 0;
+        _currentSpawnQueue = new Queue<GameObject>(_spawnQueue);
     }
 
-    public void SpawnQueue()
+    public void AddToQueue(IEnumerable<Action> actions)
     {
-        _loopRecordings = new Queue<Queue<Action>>(_recordings);
-        AddNextItemInQueue();
+        GameObject clone = Instantiate(playerClone);
+        clone.GetComponent<CloneController>().Actions = new Queue<Action>(actions);
+        clone.GetComponent<CloneController>().spawn = gameObject;
+        clone.GetComponent<CloneController>().Reset();
+        _spawnQueue.Enqueue(clone);
     }
 
-    public void AddNextItemInQueue()
+    public void SpawnNextItemInQueue()
     {
-        if (_loopRecordings.Count > 0)
+        if (_currentSpawnQueue.TryDequeue(out GameObject p))
         {
-            GameObject rec = Instantiate(playerClone);
-        
-            PlayerController script = rec.GetComponent<PlayerController>();
-            script.RecordedActions = new Queue<Action>(_loopRecordings.Dequeue());
-            script.spawn = gameObject;
+            p.GetComponent<Rigidbody2D>().simulated = true;
+            p.GetComponent<CloneController>().enabled = true;
         }
         else
         {
-            player.GetComponent<Rigidbody2D>().simulated = true;
-            player.GetComponent<SpriteRenderer>().enabled = true;
+            _currentPlayer.GetComponent<SpriteRenderer>().enabled = true;
+            _currentPlayer.GetComponent<Rigidbody2D>().simulated = true;
         }
     }
 }
