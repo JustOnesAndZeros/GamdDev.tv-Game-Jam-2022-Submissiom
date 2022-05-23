@@ -38,7 +38,7 @@ public class PlayerController : Player
     private void OnMove(InputAction.CallbackContext ctx)
     {
         float direction = ctx.ReadValue<float>();
-        Move(direction); 
+        Move(direction);
         _recordedActions.Enqueue(new Action(SpawnScript.timePassed, 0, direction)); //records new direction and time to be replayed next loop
     }
 
@@ -58,17 +58,17 @@ public class PlayerController : Player
     {
        base.OnCollisionEnter2D(col);
         
-        if (!col.gameObject.CompareTag("Lethal")) return;
-        
+       if (col.gameObject.CompareTag("Lethal")) OnDeath();
+    }
+
+    private void OnDeath()
+    {
         //destroy all clones
-        foreach (var c in GameObject.FindGameObjectsWithTag("Clone"))
-        {
-            Destroy(c.gameObject);
-        }
+        foreach (var c in GameObject.FindGameObjectsWithTag("Clone")) Destroy(c.gameObject);
         
         _recordedActions.Enqueue(new Action(SpawnScript.timePassed, -1, -1));
-        spawn.GetComponent<SpawnManager>().AddToQueue(_recordedActions);
-        spawn.GetComponent<SpawnManager>().Reset();
+        SpawnScript.AddToQueue(_recordedActions);
+        SpawnScript.Reset();
         
         Reset();
     }
@@ -76,6 +76,7 @@ public class PlayerController : Player
     private void Reset()
     {
         _recordedActions = new Queue<Action>();
+        Rb.velocity = Vector2.zero;
         transform.position = spawn.transform.position;
         SetControllable(false);
     }

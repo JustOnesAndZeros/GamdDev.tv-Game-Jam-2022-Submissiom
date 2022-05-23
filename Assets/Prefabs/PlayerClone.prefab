@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3658770324640175164}
   - component: {fileID: 3658770324640175165}
   - component: {fileID: -7787657484807687327}
-  m_Layer: 3
+  m_Layer: 6
   m_Name: PlayerClone
   m_TagString: Clone
   m_Icon: {fileID: 0}
@@ -153,5 +153,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
+  active: {fileID: 6200000, guid: a6b53194578ba254291c59cc5533ea61, type: 2}
+  inactive: {fileID: 6200000, guid: 509670d416d54944f94e6c574596387f, type: 2}
   moveSpeed: 10
   jumpForce: 10

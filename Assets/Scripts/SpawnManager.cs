@@ -10,7 +10,7 @@ public class SpawnManager : MonoBehaviour
 
     public float timePassed;
 
-    private static Queue<Queue<Action>> _clones;
+    private Queue<Queue<Action>> _clones;
     private Queue<Queue<Action>> _currentClones;
 
     private void Awake()

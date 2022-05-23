@@ -9,7 +9,7 @@ public class CloneController : Player
 
     private bool _hasLeftSpawn;
 
-    private void Update()
+    protected void Update()
     {
         PlayRecording();
     }
@@ -40,6 +40,7 @@ public class CloneController : Player
                     break;
                 default:
                     Move(0);
+                    Rb.sharedMaterial = inactive;
                     enabled = false;
                     break;
             }
@@ -51,7 +52,7 @@ public class CloneController : Player
     private void OnTriggerExit2D(Collider2D other)
     {
         if (!other.gameObject.CompareTag("Respawn") || _hasLeftSpawn) return;
-        spawn.GetComponent<SpawnManager>().SpawnNextInQueue();
+        SpawnScript.SpawnNextInQueue();
         _hasLeftSpawn = true;
     }
 }
