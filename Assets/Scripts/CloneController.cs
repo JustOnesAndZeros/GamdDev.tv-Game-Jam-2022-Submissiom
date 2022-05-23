@@ -39,7 +39,6 @@ public class CloneController : Player
                     break;
                 default:
                     Move(0);
-                    Rb.sharedMaterial = inactive;
                     break;
             }
 

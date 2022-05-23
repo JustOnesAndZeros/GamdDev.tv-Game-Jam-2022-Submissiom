@@ -51,13 +51,13 @@ public class PlayerController : Player
     public void SetControllable(bool b)
     {
         GetComponent<SpriteRenderer>().enabled = b;
-        Rb.simulated = b;
+        GetComponent<Rigidbody2D>().simulated = b;
     }
 
     protected override void OnCollisionEnter2D(Collision2D col)
     {
        base.OnCollisionEnter2D(col);
-        
+       
        if (col.gameObject.CompareTag("Lethal")) OnDeath();
     }
 
@@ -76,7 +76,6 @@ public class PlayerController : Player
     private void Reset()
     {
         _recordedActions = new Queue<Action>();
-        Rb.velocity = Vector2.zero;
         transform.position = spawn.transform.position;
         SetControllable(false);
     }

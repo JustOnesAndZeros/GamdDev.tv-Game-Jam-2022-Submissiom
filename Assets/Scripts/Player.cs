@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public struct Action
@@ -17,7 +18,7 @@ public struct Action
 
 public class Player : MonoBehaviour
 {
-    protected Rigidbody2D Rb;
+    private Rigidbody2D _rb;
     private Collider2D _col;
 
     public GameObject spawn; //spawn object
@@ -25,16 +26,14 @@ public class Player : MonoBehaviour
     
     [SerializeField] private LayerMask environmentLayer; //layer to check with boxcast
     [SerializeField] private LayerMask playerLayer; //layer to check with boxcast
-
-    [SerializeField] protected PhysicsMaterial2D active;
-    [SerializeField] protected PhysicsMaterial2D inactive;
+    [SerializeField] private LayerMask jumpLayer;
     
     [SerializeField] protected float moveSpeed; //horizontal movement speed
     private float _moveDirection;
     [SerializeField] protected float jumpForce; //vertical impulse force for jumping
     private float _mass;
 
-    private GameObject _carryPlayer;
+    [SerializeField] private Rigidbody2D _carryPlayer;
     
     private bool _canMoveRight;
     private bool _canMoveLeft;
@@ -42,7 +41,7 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        Rb = GetComponent<Rigidbody2D>();
+        _rb = GetComponent<Rigidbody2D>();
         _col = GetComponent<Collider2D>();
     }
 
@@ -50,19 +49,14 @@ public class Player : MonoBehaviour
     {
         transform.position = spawn.transform.position;
         SpawnScript = spawn.GetComponent<SpawnManager>();
-        Rb.sharedMaterial = active;
-        _mass = Rb.mass;
+        _mass = _rb.mass;
     }
 
     private void FixedUpdate()
     {
-        if ((_canMoveRight && _moveDirection > 0) || (_canMoveLeft && _moveDirection < 0) || _moveDirection == 0)
-            Rb.velocity = new Vector2(_moveDirection * moveSpeed, Rb.velocity.y); //sets player velocity
+        if ((_canMoveRight && _moveDirection > 0) || (_canMoveLeft && _moveDirection < 0)|| _moveDirection == 0) _rb.velocity = new Vector2(_moveDirection * moveSpeed, _rb.velocity.y); //sets player velocity
 
-        if (_carryPlayer != null)
-        {
-            _carryPlayer.GetComponent<Rigidbody2D>().velocity += Vector2.right * Rb.velocity.x;
-        }
+        if (_carryPlayer != null) _carryPlayer.velocity += Vector2.right * _rb.velocity.x;
     }
 
     //sets horizontal player movement
@@ -76,8 +70,8 @@ public class Player : MonoBehaviour
     {
         if (_canJump)
         {
-            Rb.mass = _mass;
-            Rb.velocity = new Vector2(Rb.velocity.x, force); //applies vertical force to player
+            _rb.mass = _mass;
+            _rb.velocity = new Vector2(_rb.velocity.x, force); //applies vertical force to player
         }
     }
 
@@ -88,14 +82,20 @@ public class Player : MonoBehaviour
     {
         _canMoveRight = !CheckDirection(Vector2.right, environmentLayer);
         _canMoveLeft = !CheckDirection(Vector2.left, environmentLayer);
-        _canJump = CheckDirection(Vector2.down, environmentLayer);
+        _canJump = CheckDirection(Vector2.down, jumpLayer);
 
-        if ((playerLayer.value & (1 << col.transform.gameObject.layer)) > 0)
-        {
-            bool onPlayer = CheckDirection(Vector2.down, playerLayer);
-            col.gameObject.GetComponent<Player>()._carryPlayer = onPlayer ? col.gameObject : null;
-            Rb.mass = onPlayer ? 0 : _mass;
-        }
+        //if colliding with player
+        if ((playerLayer.value & (1 << col.transform.gameObject.layer)) > 0) OnPlayer(col);
+    }
+
+    private void OnPlayer(Collision2D col)
+    {
+        //check if collider is below player
+        var bounds = _col.bounds;
+        bool onPlayer = Physics2D.BoxCastAll(bounds.center, bounds.size, 0f, Vector2.down, .1f, playerLayer)
+            .Any(hit => hit.transform == col.transform);
+        col.gameObject.GetComponent<Player>()._carryPlayer = onPlayer ? GetComponent<Rigidbody2D>() : null;
+        _rb.mass = onPlayer ? 0 : _mass;
     }
 
     //checks if the player is touching a wall in the specified direction (used for ground checks and to prevent sticking to walls)
