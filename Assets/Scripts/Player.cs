@@ -34,7 +34,7 @@ public class Player : MonoBehaviour
     [SerializeField] protected float jumpForce; //vertical impulse force for jumping
     private float _mass;
 
-    private Rigidbody2D _underPlayer;
+    public Rigidbody2D carryPlayer;
     
     private bool _canMoveRight;
     private bool _canMoveLeft;
@@ -56,10 +56,13 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Vector2 v = Rb.velocity;
-        if ((_canMoveRight && _moveDirection > 0) || (_canMoveLeft && _moveDirection < 0) || _moveDirection == 0) v.x = _moveDirection * moveSpeed; //sets player velocity
-        if (_underPlayer != null) v.x += _underPlayer.velocity.x;
-        Rb.velocity = v;
+        if ((_canMoveRight && _moveDirection > 0) || (_canMoveLeft && _moveDirection < 0) || _moveDirection == 0)
+            Rb.velocity = new Vector2(_moveDirection * moveSpeed, Rb.velocity.y); //sets player velocity
+
+        if (carryPlayer != null)
+        {
+            carryPlayer.GetComponent<Rigidbody2D>().velocity += Vector2.right * Rb.velocity.x;
+        }
     }
 
     //sets horizontal player movement
@@ -71,10 +74,11 @@ public class Player : MonoBehaviour
 
     protected void Jump(float force)
     {
-        if (!_canJump) return;
-        Rb.mass = _mass;
-        Rb.velocity = new Vector2(Rb.velocity.x, 0);
-        Rb.AddForce(Vector2.up * force, ForceMode2D.Impulse); //applies vertical force to player
+        if (_canJump)
+        {
+            Rb.mass = _mass;
+            Rb.velocity = new Vector2(Rb.velocity.x, force); //applies vertical force to player
+        }
     }
 
     protected virtual void OnCollisionEnter2D(Collision2D col) { CheckAllDirections(col); }
@@ -86,16 +90,18 @@ public class Player : MonoBehaviour
         _canMoveLeft = !CheckDirection(Vector2.left, environmentLayer);
         _canJump = CheckDirection(Vector2.down, environmentLayer);
 
-        bool onPlayer = CheckDirection(Vector2.down, playerLayer) && (playerLayer.value & (1 << col.transform.gameObject.layer)) > 0;
-        _underPlayer = onPlayer ? col.gameObject.GetComponent<Rigidbody2D>() : null;
-        Rb.mass = onPlayer ? 0 : _mass;
+        if ((playerLayer.value & (1 << col.transform.gameObject.layer)) > 0)
+        {
+            bool onPlayer = CheckDirection(Vector2.down, playerLayer);
+            col.gameObject.GetComponent<Player>().carryPlayer = onPlayer ? GetComponent<Rigidbody2D>() : null;
+            Rb.mass = onPlayer ? 0 : _mass;
+        }
     }
 
     //checks if the player is touching a wall in the specified direction (used for ground checks and to prevent sticking to walls)
     private bool CheckDirection(Vector2 direction, LayerMask layer)
     {
         var bounds = _col.bounds;
-        // ReSharper disable once Unity.PreferNonAllocApi
         RaycastHit2D[] boxCast = Physics2D.BoxCastAll(bounds.center, bounds.size, 0f, direction, .1f, layer);
         return boxCast.Any(hit => hit.collider.gameObject != gameObject);
     }

@@ -127,3 +127,4 @@ MonoBehaviour:
   player: {fileID: 1834677518294893092, guid: 58ce8e253c9fdb945861d5ba141c776d, type: 3}
   clonePrefab: {fileID: 3658770324640175161, guid: 428422d7e95acfe43ae0d0721a9c31e0, type: 3}
   timePassed: 0
+  maxCloneCount: 2

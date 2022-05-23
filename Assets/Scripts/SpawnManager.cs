@@ -10,6 +10,7 @@ public class SpawnManager : MonoBehaviour
 
     public float timePassed;
 
+    [SerializeField] private int maxCloneCount;
     private Queue<Queue<Action>> _clones;
     private Queue<Queue<Action>> _currentClones;
 
@@ -34,6 +35,7 @@ public class SpawnManager : MonoBehaviour
     public void AddToQueue(Queue<Action> actions)
     {
         _clones.Enqueue(new Queue<Action>(actions));
+        if (_clones.Count > maxCloneCount) _clones.Dequeue();
     }
 
     public void SpawnNextInQueue()
