@@ -34,7 +34,7 @@ public class Player : MonoBehaviour
     [SerializeField] protected float jumpForce; //vertical impulse force for jumping
     private float _mass;
 
-    public Rigidbody2D carryPlayer;
+    private GameObject _carryPlayer;
     
     private bool _canMoveRight;
     private bool _canMoveLeft;
@@ -59,9 +59,9 @@ public class Player : MonoBehaviour
         if ((_canMoveRight && _moveDirection > 0) || (_canMoveLeft && _moveDirection < 0) || _moveDirection == 0)
             Rb.velocity = new Vector2(_moveDirection * moveSpeed, Rb.velocity.y); //sets player velocity
 
-        if (carryPlayer != null)
+        if (_carryPlayer != null)
         {
-            carryPlayer.GetComponent<Rigidbody2D>().velocity += Vector2.right * Rb.velocity.x;
+            _carryPlayer.GetComponent<Rigidbody2D>().velocity += Vector2.right * Rb.velocity.x;
         }
     }
 
@@ -93,7 +93,7 @@ public class Player : MonoBehaviour
         if ((playerLayer.value & (1 << col.transform.gameObject.layer)) > 0)
         {
             bool onPlayer = CheckDirection(Vector2.down, playerLayer);
-            col.gameObject.GetComponent<Player>().carryPlayer = onPlayer ? GetComponent<Rigidbody2D>() : null;
+            col.gameObject.GetComponent<Player>()._carryPlayer = onPlayer ? col.gameObject : null;
             Rb.mass = onPlayer ? 0 : _mass;
         }
     }
