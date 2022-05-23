@@ -28,12 +28,13 @@ public class Player : MonoBehaviour
 
     [SerializeField] protected PhysicsMaterial2D active;
     [SerializeField] protected PhysicsMaterial2D inactive;
-
-    [SerializeField] protected float moveSpeed; //horizontal movement speed
-    [SerializeField] protected float jumpForce; //vertical impulse force for jumping
-    private float _moveDirection;
     
-    private Vector3 _positionLastFrame;
+    [SerializeField] protected float moveSpeed; //horizontal movement speed
+    private float _moveDirection;
+    [SerializeField] protected float jumpForce; //vertical impulse force for jumping
+    private float _mass;
+
+    private Rigidbody2D _underPlayer;
     
     private bool _canMoveRight;
     private bool _canMoveLeft;
@@ -42,7 +43,6 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         Rb = GetComponent<Rigidbody2D>();
-        Rb.sharedMaterial = active;
         _col = GetComponent<Collider2D>();
     }
 
@@ -50,11 +50,16 @@ public class Player : MonoBehaviour
     {
         transform.position = spawn.transform.position;
         SpawnScript = spawn.GetComponent<SpawnManager>();
+        Rb.sharedMaterial = active;
+        _mass = Rb.mass;
     }
 
     private void FixedUpdate()
     {
-        if ((_canMoveRight && _moveDirection > 0) || (_canMoveLeft && _moveDirection < 0) || _moveDirection == 0) Rb.velocity = new Vector2(_moveDirection * moveSpeed, Rb.velocity.y); //sets player velocity
+        Vector2 v = Rb.velocity;
+        if ((_canMoveRight && _moveDirection > 0) || (_canMoveLeft && _moveDirection < 0) || _moveDirection == 0) v.x = _moveDirection * moveSpeed; //sets player velocity
+        if (_underPlayer != null) v.x += _underPlayer.velocity.x;
+        Rb.velocity = v;
     }
 
     //sets horizontal player movement
@@ -66,18 +71,24 @@ public class Player : MonoBehaviour
 
     protected void Jump(float force)
     {
-        //checks if player is touching the ground before jumping
-        if (_canJump) Rb.AddForce(Vector2.up * force, ForceMode2D.Impulse); //applies vertical force to player
+        if (!_canJump) return;
+        Rb.mass = _mass;
+        Rb.velocity = new Vector2(Rb.velocity.x, 0);
+        Rb.AddForce(Vector2.up * force, ForceMode2D.Impulse); //applies vertical force to player
     }
 
-    protected virtual void OnCollisionEnter2D(Collision2D col) { CheckAllDirections(); }
-    protected virtual void OnCollisionExit2D(Collision2D other) { CheckAllDirections(); }
+    protected virtual void OnCollisionEnter2D(Collision2D col) { CheckAllDirections(col); }
+    protected virtual void OnCollisionExit2D(Collision2D other) { CheckAllDirections(other); }
 
-    private void CheckAllDirections()
+    private void CheckAllDirections(Collision2D col)
     {
         _canMoveRight = !CheckDirection(Vector2.right, environmentLayer);
         _canMoveLeft = !CheckDirection(Vector2.left, environmentLayer);
         _canJump = CheckDirection(Vector2.down, environmentLayer);
+
+        bool onPlayer = CheckDirection(Vector2.down, playerLayer) && (playerLayer.value & (1 << col.transform.gameObject.layer)) > 0;
+        _underPlayer = onPlayer ? col.gameObject.GetComponent<Rigidbody2D>() : null;
+        Rb.mass = onPlayer ? 0 : _mass;
     }
 
     //checks if the player is touching a wall in the specified direction (used for ground checks and to prevent sticking to walls)

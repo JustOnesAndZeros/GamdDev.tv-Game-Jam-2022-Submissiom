@@ -155,5 +155,6 @@ MonoBehaviour:
     m_Bits: 64
   active: {fileID: 6200000, guid: a6b53194578ba254291c59cc5533ea61, type: 2}
   inactive: {fileID: 6200000, guid: 509670d416d54944f94e6c574596387f, type: 2}
+  mass: 999
   moveSpeed: 10
   jumpForce: 10

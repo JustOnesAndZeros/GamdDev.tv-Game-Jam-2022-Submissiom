@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class CloneController : Player
@@ -41,7 +40,6 @@ public class CloneController : Player
                 default:
                     Move(0);
                     Rb.sharedMaterial = inactive;
-                    enabled = false;
                     break;
             }
 
