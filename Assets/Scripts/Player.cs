@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
@@ -32,8 +33,6 @@ public class Player : MonoBehaviour
     private float _moveDirection;
     [SerializeField] protected float jumpForce; //vertical impulse force for jumping
     private float _mass;
-
-    [SerializeField] private Rigidbody2D _carryPlayer;
     
     private bool _canMoveRight;
     private bool _canMoveLeft;
@@ -52,11 +51,9 @@ public class Player : MonoBehaviour
         _mass = _rb.mass;
     }
 
-    private void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
         if ((_canMoveRight && _moveDirection > 0) || (_canMoveLeft && _moveDirection < 0)|| _moveDirection == 0) _rb.velocity = new Vector2(_moveDirection * moveSpeed, _rb.velocity.y); //sets player velocity
-
-        if (_carryPlayer != null) _carryPlayer.velocity += Vector2.right * _rb.velocity.x;
     }
 
     //sets horizontal player movement
@@ -94,8 +91,6 @@ public class Player : MonoBehaviour
         var bounds = _col.bounds;
         bool onPlayer = Physics2D.BoxCastAll(bounds.center, bounds.size, 0f, Vector2.down, .1f, playerLayer)
             .Any(hit => hit.transform == col.transform);
-        col.gameObject.GetComponent<Player>()._carryPlayer = onPlayer ? GetComponent<Rigidbody2D>() : null;
-        _rb.mass = onPlayer ? 0 : _mass;
     }
 
     //checks if the player is touching a wall in the specified direction (used for ground checks and to prevent sticking to walls)

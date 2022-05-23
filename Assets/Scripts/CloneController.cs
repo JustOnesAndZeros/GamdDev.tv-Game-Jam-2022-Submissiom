@@ -5,10 +5,10 @@ public class CloneController : Player
 {
     public Queue<Action> Actions;
     private Queue<Action> _currentActions;
-
+    
     private bool _hasLeftSpawn;
 
-    protected void Update()
+    private void Update()
     {
         PlayRecording();
     }
