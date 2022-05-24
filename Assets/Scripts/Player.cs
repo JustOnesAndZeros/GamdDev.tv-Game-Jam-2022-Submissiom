@@ -82,7 +82,7 @@ public class Player : MonoBehaviour
             _rb.velocity += Vector2.up * force; //applies vertical force to player
         }
     }
-
+    
     protected virtual void OnCollisionEnter2D(Collision2D col) { CheckAllDirections(col); }
     protected virtual void OnCollisionExit2D(Collision2D other) { CheckAllDirections(other); }
 
@@ -112,5 +112,10 @@ public class Player : MonoBehaviour
         var bounds = _col.bounds;
         RaycastHit2D[] boxCast = Physics2D.BoxCastAll(bounds.center, bounds.size, 0f, direction, .1f, layer);
         return boxCast.Any(hit => hit.collider.gameObject != gameObject);
+    }
+
+    private void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.CompareTag("Finish")) Debug.Log("Win!");
     }
 }
