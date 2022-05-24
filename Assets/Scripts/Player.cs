@@ -24,6 +24,8 @@ public class Player : MonoBehaviour
 
     public GameObject spawn; //spawn object
     protected SpawnManager SpawnScript;
+
+    [SerializeField] private Rigidbody2D carryPlayer;
     
     [SerializeField] private LayerMask environmentLayer; //layer to check with boxcast
     [SerializeField] private LayerMask playerLayer; //layer to check with boxcast
@@ -53,7 +55,16 @@ public class Player : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        if ((_canMoveRight && _moveDirection > 0) || (_canMoveLeft && _moveDirection < 0)|| _moveDirection == 0) _rb.velocity = new Vector2(_moveDirection * moveSpeed, _rb.velocity.y); //sets player velocity
+        Vector2 velocity = _rb.velocity;
+        
+        if ((_canMoveRight && _moveDirection > 0) || (_canMoveLeft && _moveDirection < 0)|| _moveDirection == 0)
+        {
+            velocity.x = _moveDirection * moveSpeed; //sets player velocity
+        }
+
+        if (carryPlayer != null) velocity.x += carryPlayer.velocity.x;
+        
+        _rb.velocity = velocity;
     }
 
     //sets horizontal player movement
@@ -68,7 +79,7 @@ public class Player : MonoBehaviour
         if (_canJump)
         {
             _rb.mass = _mass;
-            _rb.velocity = new Vector2(_rb.velocity.x, force); //applies vertical force to player
+            _rb.velocity += Vector2.up * force; //applies vertical force to player
         }
     }
 
@@ -91,6 +102,8 @@ public class Player : MonoBehaviour
         var bounds = _col.bounds;
         bool onPlayer = Physics2D.BoxCastAll(bounds.center, bounds.size, 0f, Vector2.down, .1f, playerLayer)
             .Any(hit => hit.transform == col.transform);
+        carryPlayer = onPlayer ? col.gameObject.GetComponent<Rigidbody2D>() : null;
+        _rb.mass = onPlayer ? 0 : _mass;
     }
 
     //checks if the player is touching a wall in the specified direction (used for ground checks and to prevent sticking to walls)
