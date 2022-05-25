@@ -43,7 +43,6 @@ public class Player : MonoBehaviour
     private float _gravity;
     private float _mass;
 
-    private SpriteRenderer _spriteRenderer;
     protected Animator Animator;
     protected static readonly int IsActive = Animator.StringToHash("isActive");
     private static readonly int IsGrounded = Animator.StringToHash("isGrounded");
@@ -56,7 +55,6 @@ public class Player : MonoBehaviour
         _gravity = _rb.gravityScale;
         _mass = _rb.mass;
         _col = GetComponent<Collider2D>();
-        _spriteRenderer = GetComponent<SpriteRenderer>();
         Animator = GetComponent<Animator>();
         spawn = GameObject.FindGameObjectWithTag("Respawn");
     }
@@ -100,7 +98,7 @@ public class Player : MonoBehaviour
     protected void Move(float direction)
     {
         _moveDirection = direction;
-        if (direction != 0) _spriteRenderer.flipX = direction < 0;
+        if (direction != 0) transform.eulerAngles = 180 * (direction < 0 ? Vector3.up : Vector3.zero);
     }
 
     protected void Jump(float isDown)
