@@ -180,3 +180,5 @@ MonoBehaviour:
     m_Bits: 72
   moveSpeed: 10
   jumpForce: 10
+  lowJumpMultiplier: 2
+  fallMultiplier: 2.5

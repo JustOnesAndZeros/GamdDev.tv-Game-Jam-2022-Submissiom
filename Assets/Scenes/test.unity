@@ -768,6 +768,14 @@ PrefabInstance:
       propertyPath: spawn
       value: 
       objectReference: {fileID: 1650486741}
+    - target: {fileID: 408366389542008398, guid: 58ce8e253c9fdb945861d5ba141c776d, type: 3}
+      propertyPath: fallMultiplier
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 408366389542008398, guid: 58ce8e253c9fdb945861d5ba141c776d, type: 3}
+      propertyPath: lowJumpMultiplier
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 408366389542008399, guid: 58ce8e253c9fdb945861d5ba141c776d, type: 3}
       propertyPath: m_RootOrder
       value: 5

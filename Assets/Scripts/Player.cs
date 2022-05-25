@@ -33,10 +33,14 @@ public class Player : MonoBehaviour
     
     [SerializeField] protected float moveSpeed; //horizontal movement speed
     private float _moveDirection;
-    [SerializeField] protected float jumpForce; //vertical impulse force for jumping
-    private float _mass;
     
+    [SerializeField] private float jumpForce; //vertical impulse force for jumping
+    [SerializeField] private float lowJumpMultiplier;
+    [SerializeField] private float fallMultiplier;
+    private bool _doJump;
+
     private bool _isGrounded;
+    private bool _isJumping;
 
     private SpriteRenderer _spriteRenderer;
     protected Animator Animator;
@@ -57,16 +61,32 @@ public class Player : MonoBehaviour
     {
         transform.position = spawn.transform.position;
         SpawnScript = spawn.GetComponent<SpawnManager>();
-        _mass = _rb.mass;
     }
 
     protected virtual void FixedUpdate()
     {
         Vector2 velocity = _rb.velocity;
         
-        velocity.x = _moveDirection * moveSpeed; //sets player velocity
+        //set x velocity
+        velocity.x = _moveDirection * moveSpeed;
+        if (carryPlayer != null) velocity.x += carryPlayer.velocity.x ;
 
-        if (carryPlayer != null) velocity.x += carryPlayer.velocity.x;
+        //set y velocity
+        if (_doJump)
+        {
+            velocity.y = jumpForce; //applies vertical force to player
+            _doJump = false;
+        }
+        
+        switch (velocity.y)
+        {
+            case < 0:
+                velocity.y += Physics2D.gravity.y * (fallMultiplier - _rb.gravityScale) * Time.fixedDeltaTime;
+                break;
+            case > 0 when _isJumping:
+                velocity.y += Physics2D.gravity.y * (lowJumpMultiplier - _rb.gravityScale) * Time.fixedDeltaTime;
+                break;
+        }
         
         _rb.velocity = velocity;
         
@@ -81,19 +101,24 @@ public class Player : MonoBehaviour
         if (direction != 0) _spriteRenderer.flipX = direction < 0;
     }
 
-    protected void Jump(float force)
+    protected void Jump(float isDown)
     {
-        if (_isGrounded)
+        switch (isDown)
         {
-            _rb.mass = _mass;
-            _rb.velocity = Vector2.up * force; //applies vertical force to player
+            case 1 when _isGrounded:
+                _isJumping = true;
+                _doJump = true;
+                break;
+            case 0:
+                _isJumping = false;
+                break;
         }
     }
     
-    protected virtual void OnCollisionEnter2D(Collision2D col) { CheckAllDirections(col); }
-    protected virtual void OnCollisionExit2D(Collision2D other) { CheckAllDirections(other); }
+    protected virtual void OnCollisionEnter2D(Collision2D col) { CheckDown(col); }
+    protected virtual void OnCollisionExit2D(Collision2D other) { CheckDown(other); }
 
-    private void CheckAllDirections(Collision2D col)
+    private void CheckDown(Collision2D col)
     {
         _isGrounded = CheckDirection(Vector2.down, jumpLayer);
         Animator.SetBool(IsGrounded, _isGrounded);
@@ -109,7 +134,6 @@ public class Player : MonoBehaviour
         bool onPlayer = Physics2D.BoxCastAll(bounds.center, bounds.size, 0f, Vector2.down, .1f, playerLayer)
             .Any(hit => hit.transform == col.transform);
         carryPlayer = onPlayer ? col.gameObject.GetComponent<Rigidbody2D>() : null;
-        _rb.mass = onPlayer ? 0 : _mass;
     }
 
     //checks if the player is touching a wall in the specified direction (used for ground checks and to prevent sticking to walls)

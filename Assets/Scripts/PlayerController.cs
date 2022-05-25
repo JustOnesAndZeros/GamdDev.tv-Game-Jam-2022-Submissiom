@@ -31,6 +31,7 @@ public class PlayerController : Player
         _playerInputActions.Movement.Horizontal.canceled -= OnMove;
         
         _playerInputActions.Movement.Jump.started -= OnJump;
+        _playerInputActions.Movement.Jump.canceled -= OnJump;
         
         _playerInputActions.Disable();
     }
@@ -44,8 +45,9 @@ public class PlayerController : Player
 
     private void OnJump(InputAction.CallbackContext ctx)
     {
-        Jump(jumpForce);
-        _recordedActions.Enqueue(new Action(SpawnScript.timePassed, 1, jumpForce)); //records jump force and time to be replayed next loop
+        float isDown = ctx.started ? 1 : 0;
+        Jump(isDown);
+        _recordedActions.Enqueue(new Action(SpawnScript.timePassed, 1, isDown)); //records jump force and time to be replayed next loop
     }
 
     public void SetControllable(bool b)
