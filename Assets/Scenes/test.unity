@@ -486,7 +486,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 718180125571288165, guid: d4f65a8fbd5c1ea4cb4d9e003894a0d8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 718180125571288165, guid: d4f65a8fbd5c1ea4cb4d9e003894a0d8, type: 3}
       propertyPath: m_LocalPosition.z
@@ -772,6 +772,10 @@ PrefabInstance:
       propertyPath: spawn
       value: 
       objectReference: {fileID: 1650486741}
+    - target: {fileID: 408366389542008398, guid: 58ce8e253c9fdb945861d5ba141c776d, type: 3}
+      propertyPath: jumpForce
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 408366389542008398, guid: 58ce8e253c9fdb945861d5ba141c776d, type: 3}
       propertyPath: fallMultiplier
       value: 2.5

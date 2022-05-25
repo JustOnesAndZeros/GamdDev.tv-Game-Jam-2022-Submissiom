@@ -20,6 +20,7 @@ public class PlayerController : Player
         _playerInputActions.Movement.Horizontal.canceled += OnMove;
         
         _playerInputActions.Movement.Jump.started += OnJump;
+        _playerInputActions.Movement.Jump.canceled += OnJump;
 
         _playerInputActions.Enable();
     }

@@ -202,7 +202,7 @@ MonoBehaviour:
   jumpLayer:
     serializedVersion: 2
     m_Bits: 72
-  moveSpeed: 10
-  jumpForce: 10
+  moveSpeed: 8
+  jumpForce: 8
   lowJumpMultiplier: 2
   fallMultiplier: 2.5

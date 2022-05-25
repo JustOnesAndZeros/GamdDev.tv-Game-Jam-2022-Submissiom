@@ -38,6 +38,8 @@ public class Player : MonoBehaviour
     private bool _doJump;
     private bool _isGrounded;
     private bool _isJumping;
+
+    private float _gravity;
     private float _mass;
 
     private SpriteRenderer _spriteRenderer;
@@ -50,6 +52,7 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _gravity = _rb.gravityScale;
         _mass = _rb.mass;
         _col = GetComponent<Collider2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
@@ -77,17 +80,14 @@ public class Player : MonoBehaviour
             velocity.y = jumpForce; //applies vertical force to player
             _doJump = false;
         }
-        
-        switch (velocity.y)
+
+        _rb.gravityScale = velocity.y switch
         {
-            case < 0:
-                velocity.y += Physics2D.gravity.y * (fallMultiplier - _rb.gravityScale) * Time.fixedDeltaTime;
-                break;
-            case > 0 when _isJumping:
-                velocity.y += Physics2D.gravity.y * (lowJumpMultiplier - _rb.gravityScale) * Time.fixedDeltaTime;
-                break;
-        }
-        
+            < 0 => _gravity * fallMultiplier,
+            > 0 when !_isJumping => _gravity * lowJumpMultiplier,
+            _ => _gravity
+        };
+
         _rb.velocity = velocity;
         
         Animator.SetFloat(HorizontalSpeed, Math.Abs(velocity.x));
