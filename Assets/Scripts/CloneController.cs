@@ -38,7 +38,7 @@ public class CloneController : Player
                     Jump(act.Value);
                     break;
                 default:
-                    Move(0);
+                    OnDeath();
                     break;
             }
 
@@ -51,5 +51,11 @@ public class CloneController : Player
         if (!other.gameObject.CompareTag("Respawn") || _hasLeftSpawn) return;
         SpawnScript.SpawnNextInQueue();
         _hasLeftSpawn = true;
+    }
+
+    protected override void OnDeath()
+    {
+        Move(0);
+        Animator.SetBool(IsActive, false);
     }
 }

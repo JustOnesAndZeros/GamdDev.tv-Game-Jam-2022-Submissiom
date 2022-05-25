@@ -36,14 +36,23 @@ public class Player : MonoBehaviour
     [SerializeField] protected float jumpForce; //vertical impulse force for jumping
     private float _mass;
     
-    private bool _canMoveRight;
-    private bool _canMoveLeft;
-    private bool _canJump;
+    [SerializeField] private bool _canMoveRight;
+    [SerializeField] private bool _canMoveLeft;
+    [SerializeField] private bool _isGrounded;
+
+    private SpriteRenderer _spriteRenderer;
+    protected Animator Animator;
+    protected static readonly int IsActive = Animator.StringToHash("isActive");
+    private static readonly int IsGrounded = Animator.StringToHash("isGrounded");
+    private static readonly int HorizontalSpeed = Animator.StringToHash("horizontalSpeed");
+    private static readonly int VerticalVelocity = Animator.StringToHash("verticalVelocity");
 
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
         _col = GetComponent<Collider2D>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        Animator = GetComponent<Animator>();
     }
 
     private void Start()
@@ -65,21 +74,24 @@ public class Player : MonoBehaviour
         if (carryPlayer != null) velocity.x += carryPlayer.velocity.x;
         
         _rb.velocity = velocity;
+        
+        Animator.SetFloat(HorizontalSpeed, Math.Abs(velocity.x));
+        Animator.SetFloat(VerticalVelocity, velocity.y);
     }
 
     //sets horizontal player movement
     protected void Move(float direction)
     {
-        //will not move player if a wall is in that direction (prevents sticking to walls)
         _moveDirection = direction;
+        if (direction != 0) _spriteRenderer.flipX = direction < 0;
     }
 
     protected void Jump(float force)
     {
-        if (_canJump)
+        if (_isGrounded)
         {
             _rb.mass = _mass;
-            _rb.velocity += Vector2.up * force; //applies vertical force to player
+            _rb.velocity = Vector2.up * force; //applies vertical force to player
         }
     }
     
@@ -90,8 +102,9 @@ public class Player : MonoBehaviour
     {
         _canMoveRight = !CheckDirection(Vector2.right, environmentLayer);
         _canMoveLeft = !CheckDirection(Vector2.left, environmentLayer);
-        _canJump = CheckDirection(Vector2.down, jumpLayer);
-
+        _isGrounded = CheckDirection(Vector2.down, jumpLayer);
+        Animator.SetBool(IsGrounded, _isGrounded);
+        
         //if colliding with player
         if ((playerLayer.value & (1 << col.transform.gameObject.layer)) > 0) OnPlayer(col);
     }
@@ -117,5 +130,9 @@ public class Player : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D col)
     {
         if (col.CompareTag("Finish")) Debug.Log("Win!");
+        
+        if (col.gameObject.CompareTag("Lethal")) OnDeath();
     }
+
+    protected virtual void OnDeath() {}
 }
