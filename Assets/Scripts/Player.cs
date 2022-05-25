@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public struct Action
@@ -57,7 +58,7 @@ public class Player : MonoBehaviour
         _col = GetComponent<Collider2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         Animator = GetComponent<Animator>();
-        spawn = GameObject.FindGameObjectWithTag("respawn");
+        spawn = GameObject.FindGameObjectWithTag("Respawn");
     }
 
     private void Start()

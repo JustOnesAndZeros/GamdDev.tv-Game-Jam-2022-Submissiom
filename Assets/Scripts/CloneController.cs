@@ -11,6 +11,12 @@ public class CloneController : Player
     private void Update()
     {
         PlayRecording();
+
+        if (Vector2.Distance(transform.position, spawn.transform.position) > SpawnScript.spawnRange && !_hasLeftSpawn)
+        {
+            SpawnScript.SpawnNextInQueue();
+            _hasLeftSpawn = true;
+        }
     }
 
     private void OnEnable()
@@ -43,15 +49,6 @@ public class CloneController : Player
             }
 
             _currentActions.Dequeue();
-        }
-    }
-    
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.gameObject.CompareTag("Respawn") && !_hasLeftSpawn)
-        {
-            SpawnScript.SpawnNextInQueue();
-            _hasLeftSpawn = true;
         }
     }
 

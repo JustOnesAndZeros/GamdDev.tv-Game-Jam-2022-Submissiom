@@ -7,6 +7,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] private GameObject clonePrefab;
 
     public float timePassed;
+    public float spawnRange;
 
     [SerializeField] private int maxCloneCount;
     private Queue<Queue<Action>> _clones;
