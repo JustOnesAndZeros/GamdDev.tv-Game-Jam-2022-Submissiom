@@ -57,6 +57,7 @@ public class Player : MonoBehaviour
         _col = GetComponent<Collider2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         Animator = GetComponent<Animator>();
+        spawn = GameObject.FindGameObjectWithTag("respawn");
     }
 
     private void Start()

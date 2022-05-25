@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
@@ -25,6 +23,11 @@ public class SpawnManager : MonoBehaviour
         timePassed += Time.deltaTime;
     }
 
+    private void Start()
+    {
+        player = Instantiate(player);
+    }
+
     public void Reset()
     {
         timePassed = 0;
@@ -43,9 +46,10 @@ public class SpawnManager : MonoBehaviour
         if (_currentClones.TryDequeue(out Queue<Action> recordedActions))
         {
             GameObject g = Instantiate(clonePrefab);
-            g.GetComponent<CloneController>().Actions = new Queue<Action>(recordedActions);
-            g.GetComponent<CloneController>().spawn = gameObject;
-            g.GetComponent<CloneController>().Reset();
+            CloneController cloneScript = g.GetComponent<CloneController>();
+            cloneScript.Actions = new Queue<Action>(recordedActions);
+            cloneScript.spawn = gameObject;
+            cloneScript.Reset();
         }
         else
         {

@@ -124,7 +124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b81816dbea0305547aa7603974541f04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
+  player: {fileID: 408366389542008393, guid: 58ce8e253c9fdb945861d5ba141c776d, type: 3}
   clonePrefab: {fileID: 3658770324640175161, guid: 428422d7e95acfe43ae0d0721a9c31e0, type: 3}
   timePassed: 0
   maxCloneCount: 2
