@@ -36,9 +36,7 @@ public class Player : MonoBehaviour
     [SerializeField] protected float jumpForce; //vertical impulse force for jumping
     private float _mass;
     
-    [SerializeField] private bool _canMoveRight;
-    [SerializeField] private bool _canMoveLeft;
-    [SerializeField] private bool _isGrounded;
+    private bool _isGrounded;
 
     private SpriteRenderer _spriteRenderer;
     protected Animator Animator;
@@ -66,10 +64,7 @@ public class Player : MonoBehaviour
     {
         Vector2 velocity = _rb.velocity;
         
-        if ((_canMoveRight && _moveDirection > 0) || (_canMoveLeft && _moveDirection < 0)|| _moveDirection == 0)
-        {
-            velocity.x = _moveDirection * moveSpeed; //sets player velocity
-        }
+        velocity.x = _moveDirection * moveSpeed; //sets player velocity
 
         if (carryPlayer != null) velocity.x += carryPlayer.velocity.x;
         
@@ -100,8 +95,6 @@ public class Player : MonoBehaviour
 
     private void CheckAllDirections(Collision2D col)
     {
-        _canMoveRight = !CheckDirection(Vector2.right, environmentLayer);
-        _canMoveLeft = !CheckDirection(Vector2.left, environmentLayer);
         _isGrounded = CheckDirection(Vector2.down, jumpLayer);
         Animator.SetBool(IsGrounded, _isGrounded);
         
