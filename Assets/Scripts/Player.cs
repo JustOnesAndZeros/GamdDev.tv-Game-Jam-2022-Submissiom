@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public struct Action
@@ -27,7 +26,6 @@ public class Player : MonoBehaviour
 
     [SerializeField] private Rigidbody2D carryPlayer;
     
-    [SerializeField] private LayerMask environmentLayer; //layer to check with boxcast
     [SerializeField] private LayerMask playerLayer; //layer to check with boxcast
     [SerializeField] private LayerMask jumpLayer;
     
@@ -38,9 +36,9 @@ public class Player : MonoBehaviour
     [SerializeField] private float lowJumpMultiplier;
     [SerializeField] private float fallMultiplier;
     private bool _doJump;
-
     private bool _isGrounded;
     private bool _isJumping;
+    private float _mass;
 
     private SpriteRenderer _spriteRenderer;
     protected Animator Animator;
@@ -52,6 +50,7 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _mass = _rb.mass;
         _col = GetComponent<Collider2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         Animator = GetComponent<Animator>();
@@ -74,6 +73,7 @@ public class Player : MonoBehaviour
         //set y velocity
         if (_doJump)
         {
+            _rb.mass = _mass;
             velocity.y = jumpForce; //applies vertical force to player
             _doJump = false;
         }
@@ -109,7 +109,7 @@ public class Player : MonoBehaviour
                 _isJumping = true;
                 _doJump = true;
                 break;
-            case 0:
+            default:
                 _isJumping = false;
                 break;
         }
@@ -134,6 +134,7 @@ public class Player : MonoBehaviour
         bool onPlayer = Physics2D.BoxCastAll(bounds.center, bounds.size, 0f, Vector2.down, .1f, playerLayer)
             .Any(hit => hit.transform == col.transform);
         carryPlayer = onPlayer ? col.gameObject.GetComponent<Rigidbody2D>() : null;
+        _rb.mass = onPlayer ? 0 : _mass;
     }
 
     //checks if the player is touching a wall in the specified direction (used for ground checks and to prevent sticking to walls)
@@ -146,9 +147,19 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D col)
     {
-        if (col.CompareTag("Finish")) Debug.Log("Win!");
-        
-        if (col.gameObject.CompareTag("Lethal")) OnDeath();
+        switch (col.tag)
+        {
+            case "Finish":
+                Debug.Log("Win!");
+                break;
+            case "Lethal":
+                OnDeath();
+                break;
+            case "Player":
+            case "Clone":
+                _rb.mass = _mass;
+                break;
+        }
     }
 
     protected virtual void OnDeath() {}

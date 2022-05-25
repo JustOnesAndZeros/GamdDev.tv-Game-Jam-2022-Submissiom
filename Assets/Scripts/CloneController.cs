@@ -48,9 +48,11 @@ public class CloneController : Player
     
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (!other.gameObject.CompareTag("Respawn") || _hasLeftSpawn) return;
-        SpawnScript.SpawnNextInQueue();
-        _hasLeftSpawn = true;
+        if (other.gameObject.CompareTag("Respawn") && !_hasLeftSpawn)
+        {
+            SpawnScript.SpawnNextInQueue();
+            _hasLeftSpawn = true;
+        }
     }
 
     protected override void OnDeath()
