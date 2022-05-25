@@ -54,14 +54,7 @@ public class PlayerController : Player
         GetComponent<Rigidbody2D>().simulated = b;
     }
 
-    protected override void OnCollisionEnter2D(Collision2D col)
-    {
-       base.OnCollisionEnter2D(col);
-       
-       if (col.gameObject.CompareTag("Lethal")) OnDeath();
-    }
-
-    private void OnDeath()
+    protected override void OnDeath()
     {
         //destroy all clones
         foreach (var c in GameObject.FindGameObjectsWithTag("Clone")) Destroy(c.gameObject);
