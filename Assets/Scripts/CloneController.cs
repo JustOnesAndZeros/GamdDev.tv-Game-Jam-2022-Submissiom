@@ -47,6 +47,7 @@ public class CloneController : Player
     protected override void OnDeath()
     {
         Move(0);
+        Actions = new Queue<Action>();
         Animator.SetBool(IsActive, false);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public struct Action
@@ -19,7 +18,7 @@ public struct Action
 
 public class Player : MonoBehaviour
 {
-    protected Rigidbody2D Rb;
+    private Rigidbody2D _rb;
     private Collider2D _col;
 
     public GameObject spawn; //spawn object
@@ -32,6 +31,7 @@ public class Player : MonoBehaviour
     
     [SerializeField] protected float moveSpeed; //horizontal movement speed
     private float _moveDirection;
+    private bool _onPlayer;
     
     [SerializeField] private float jumpForce; //vertical impulse force for jumping
     [SerializeField] private float lowJumpMultiplier;
@@ -53,9 +53,9 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        Rb = GetComponent<Rigidbody2D>();
-        _gravity = Rb.gravityScale;
-        _mass = Rb.mass;
+        _rb = GetComponent<Rigidbody2D>();
+        _gravity = _rb.gravityScale;
+        _mass = _rb.mass;
         _col = GetComponent<Collider2D>();
         
         Animator = GetComponent<Animator>();
@@ -71,28 +71,28 @@ public class Player : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        Vector2 velocity = Rb.velocity;
+        Vector2 velocity = _rb.velocity;
         
         //set x velocity
         velocity.x = _moveDirection * moveSpeed;
-        if (carryPlayer != null) velocity.x += carryPlayer.velocity.x ;
+        if (_onPlayer) velocity.x += carryPlayer.velocity.x;
 
         //set y velocity
         if (_doJump)
         {
-            Rb.mass = _mass;
+            _rb.mass = _mass;
             velocity.y = jumpForce; //applies vertical force to player
             _doJump = false;
         }
 
-        Rb.gravityScale = velocity.y switch
+        _rb.gravityScale = velocity.y switch
         {
             < 0 => _gravity * fallMultiplier,
             > 0 when !_isJumping => _gravity * lowJumpMultiplier,
             _ => _gravity
         };
 
-        Rb.velocity = velocity;
+        _rb.velocity = velocity;
         
         Animator.SetFloat(HorizontalSpeed, Math.Abs(velocity.x));
         Animator.SetFloat(VerticalVelocity, velocity.y);
@@ -124,21 +124,27 @@ public class Player : MonoBehaviour
 
     private void CheckDown(Collision2D col)
     {
-        _isGrounded = CheckDirection(Vector2.down, jumpLayer);
+        _isGrounded = DownCast(jumpLayer);
         Animator.SetBool(IsGrounded, _isGrounded);
         
         //if colliding with player
         if ((playerLayer.value & (1 << col.transform.gameObject.layer)) > 0) OnPlayer(col);
     }
 
+    private bool DownCast(LayerMask layerMask)
+    {
+        Bounds bounds = _col.bounds;
+        Vector2 pos = new Vector2(bounds.center.x, bounds.min.y - .05f);
+        Vector2 size = new Vector2(bounds.size.x, .05f);
+        
+        return Physics2D.BoxCast(pos, size, 0, Vector2.down, 0f, layerMask);
+    }
+
     private void OnPlayer(Collision2D col)
     {
-        //check if collider is below player
-        var bounds = _col.bounds;
-        bool onPlayer = Physics2D.BoxCastAll(bounds.center, bounds.size, 0f, Vector2.down, .1f, playerLayer)
-            .Any(hit => hit.transform == col.transform);
-        carryPlayer = onPlayer ? col.gameObject.GetComponent<Rigidbody2D>() : null;
-        Rb.mass = onPlayer ? 0 : _mass;
+        _onPlayer = DownCast(playerLayer);
+        carryPlayer = _onPlayer ? col.gameObject.GetComponent<Rigidbody2D>() : null;
+        _rb.mass = _onPlayer ? 0 : _mass;
     }
 
     //checks if the player is touching a wall in the specified direction (used for ground checks and to prevent sticking to walls)
