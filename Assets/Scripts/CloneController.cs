@@ -10,12 +10,6 @@ public class CloneController : Player
     private void Update()
     {
         PlayRecording();
-
-        if (Vector2.Distance(transform.position, spawn.transform.position) > SpawnScript.spawnRange && !_hasLeftSpawn)
-        {
-            SpawnScript.SpawnNextInQueue();
-            _hasLeftSpawn = true;
-        }
         
         TimePassed += Time.deltaTime;
     }

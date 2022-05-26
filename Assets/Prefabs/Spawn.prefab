@@ -118,7 +118,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b81816dbea0305547aa7603974541f04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 8765274724869717865, guid: 58ce8e253c9fdb945861d5ba141c776d, type: 3}
+  playerPrefab: {fileID: 8765274724869717865, guid: 58ce8e253c9fdb945861d5ba141c776d, type: 3}
   clonePrefab: {fileID: 193828020484501176, guid: 428422d7e95acfe43ae0d0721a9c31e0, type: 3}
-  spawnRange: 1.5
   maxCloneCount: 3

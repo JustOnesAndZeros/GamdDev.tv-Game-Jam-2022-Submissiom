@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,8 +13,6 @@ public class PlayerController : Player
     //enable user input and subscribe to events
     private void OnEnable()
     {
-        Rb = GetComponent<Rigidbody2D>();
-        
         _recordedActions = new Queue<Action>();
         
         _playerInputActions = new PlayerInputActions();
@@ -60,31 +57,11 @@ public class PlayerController : Player
         TimePassed += Time.deltaTime;
     }
 
-    public void SetControllable(bool b)
-    {
-        transform.localScale = b ? Vector3.one : Vector3.zero;
-        Rb.simulated = b;
-    }
-
     protected override void OnDeath()
     {
-        //destroy all clones
-        foreach (var c in GameObject.FindGameObjectsWithTag("Clone")) Destroy(c.gameObject);
-        
         _recordedActions.Enqueue(new Action(TimePassed, -1, -1));
         SpawnScript.AddToQueue(_recordedActions);
         SpawnScript.Reset();
-        Reset();
-    }
-
-    private void Reset()
-    {
-        _recordedActions = new Queue<Action>();
-        transform.position = spawn.transform.position;
-        Rb.velocity = Vector2.zero;
-        Move(0);
-        SetControllable(false);
-        TimePassed = 0;
     }
 }
 

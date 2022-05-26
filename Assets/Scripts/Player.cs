@@ -38,7 +38,6 @@ public class Player : MonoBehaviour
     [SerializeField] private float fallMultiplier;
     private bool _doJump;
     private bool _isGrounded;
-    protected bool HasTouchedGround;
     private bool _isJumping;
 
     protected float TimePassed;
@@ -58,14 +57,16 @@ public class Player : MonoBehaviour
         _gravity = Rb.gravityScale;
         _mass = Rb.mass;
         _col = GetComponent<Collider2D>();
+        
         Animator = GetComponent<Animator>();
+        
         spawn = GameObject.FindGameObjectWithTag("Respawn");
+        SpawnScript = spawn.GetComponent<SpawnManager>();
     }
 
     private void Start()
     {
         transform.position = spawn.transform.position;
-        SpawnScript = spawn.GetComponent<SpawnManager>();
     }
 
     protected virtual void FixedUpdate()
@@ -124,7 +125,6 @@ public class Player : MonoBehaviour
     private void CheckDown(Collision2D col)
     {
         _isGrounded = CheckDirection(Vector2.down, jumpLayer);
-        if (_isGrounded && !HasTouchedGround) HasTouchedGround = true;
         Animator.SetBool(IsGrounded, _isGrounded);
         
         //if colliding with player

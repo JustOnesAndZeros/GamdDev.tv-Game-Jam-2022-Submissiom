@@ -270,7 +270,7 @@ GameObject:
   - component: {fileID: 486452425}
   - component: {fileID: 486452427}
   - component: {fileID: 486452426}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: grass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2154,7 +2154,7 @@ GameObject:
   - component: {fileID: 2096561188}
   - component: {fileID: 2096561187}
   - component: {fileID: 2096561186}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: spikes
   m_TagString: Lethal
   m_Icon: {fileID: 0}

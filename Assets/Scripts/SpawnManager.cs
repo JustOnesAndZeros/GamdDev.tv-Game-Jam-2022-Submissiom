@@ -1,24 +1,21 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    [SerializeField] private GameObject player;
-    private PlayerController _playerController;
+    [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject clonePrefab;
 
     private Animator _animator;
     private static readonly int SpawnTrigger = Animator.StringToHash("spawnTrigger");
-    
-    //private Vector3 _spawnPosition;
-    public float spawnRange;
-    
+
     [SerializeField] private int maxCloneCount;
     private Queue<Queue<Action>> _clones;
     private Queue<Queue<Action>> _currentClones;
-    private Queue<float> _spawnTimes;
-    private Queue<float> _currentSpawnTimes;
 
     private void Awake()
     {
@@ -29,15 +26,17 @@ public class SpawnManager : MonoBehaviour
 
     private void Start()
     {
-        _animator.SetTrigger(SpawnTrigger);
-        player = Instantiate(player);
-        _playerController = player.GetComponent<PlayerController>();
+        SpawnQueue();
     }
 
     public void Reset()
     {
+        //destroy existing player and clones
+        foreach (GameObject p in GameObject.FindGameObjectsWithTag("Clone").Concat(GameObject.FindGameObjectsWithTag("Player"))) Destroy(p);
+        
+        //reset queue and spawn
         _currentClones = new Queue<Queue<Action>>(_clones);
-        SpawnNextInQueue();
+        SpawnQueue();
     }
 
     public void AddToQueue(Queue<Action> actions)
@@ -46,20 +45,16 @@ public class SpawnManager : MonoBehaviour
         if (_clones.Count > maxCloneCount) _clones.Dequeue();
     }
 
-    public void SpawnNextInQueue()
+    private void SpawnQueue()
     {
-        if (_currentClones.TryDequeue(out Queue<Action> recordedActions))
+        _animator.SetTrigger(SpawnTrigger);
+        
+        while (_currentClones.Count > 0)
         {
-            _animator.SetTrigger(SpawnTrigger);
+            Queue<Action> recordedActions = _currentClones.Dequeue();
             GameObject g = Instantiate(clonePrefab);
-            CloneController cloneScript = g.GetComponent<CloneController>();
-            cloneScript.Actions = new Queue<Action>(recordedActions);
-            cloneScript.spawn = gameObject;
+            g.GetComponent<CloneController>().Actions = new Queue<Action>(recordedActions);
         }
-        else
-        {
-            _animator.SetTrigger(SpawnTrigger);
-            _playerController.SetControllable(true);
-        }
+        Instantiate(playerPrefab, transform.position, transform.rotation);
     }
 }
