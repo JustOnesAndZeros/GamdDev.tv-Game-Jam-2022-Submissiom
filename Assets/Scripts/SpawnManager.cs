@@ -1,37 +1,41 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
     [SerializeField] private GameObject player;
+    private PlayerController _playerController;
     [SerializeField] private GameObject clonePrefab;
 
-    public float timePassed;
+    private Animator _animator;
+    private static readonly int SpawnTrigger = Animator.StringToHash("spawnTrigger");
+    
+    //private Vector3 _spawnPosition;
     public float spawnRange;
-
+    
     [SerializeField] private int maxCloneCount;
     private Queue<Queue<Action>> _clones;
     private Queue<Queue<Action>> _currentClones;
+    private Queue<float> _spawnTimes;
+    private Queue<float> _currentSpawnTimes;
 
     private void Awake()
     {
         _clones = new Queue<Queue<Action>>();
         _currentClones = new Queue<Queue<Action>>();
-    }
-
-    private void Update()
-    {
-        timePassed += Time.deltaTime;
+        _animator = GetComponent<Animator>();
     }
 
     private void Start()
     {
+        _animator.SetTrigger(SpawnTrigger);
         player = Instantiate(player);
+        _playerController = player.GetComponent<PlayerController>();
     }
 
     public void Reset()
     {
-        timePassed = 0;
         _currentClones = new Queue<Queue<Action>>(_clones);
         SpawnNextInQueue();
     }
@@ -46,15 +50,16 @@ public class SpawnManager : MonoBehaviour
     {
         if (_currentClones.TryDequeue(out Queue<Action> recordedActions))
         {
+            _animator.SetTrigger(SpawnTrigger);
             GameObject g = Instantiate(clonePrefab);
             CloneController cloneScript = g.GetComponent<CloneController>();
             cloneScript.Actions = new Queue<Action>(recordedActions);
             cloneScript.spawn = gameObject;
-            cloneScript.Reset();
         }
         else
         {
-            player.GetComponent<PlayerController>().SetControllable(true);
+            _animator.SetTrigger(SpawnTrigger);
+            _playerController.SetControllable(true);
         }
     }
 }

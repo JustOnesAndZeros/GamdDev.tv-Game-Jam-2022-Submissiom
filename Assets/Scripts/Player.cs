@@ -19,7 +19,7 @@ public struct Action
 
 public class Player : MonoBehaviour
 {
-    private Rigidbody2D _rb;
+    protected Rigidbody2D Rb;
     private Collider2D _col;
 
     public GameObject spawn; //spawn object
@@ -38,8 +38,11 @@ public class Player : MonoBehaviour
     [SerializeField] private float fallMultiplier;
     private bool _doJump;
     private bool _isGrounded;
+    protected bool HasTouchedGround;
     private bool _isJumping;
 
+    protected float TimePassed;
+    
     private float _gravity;
     private float _mass;
 
@@ -51,9 +54,9 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        _rb = GetComponent<Rigidbody2D>();
-        _gravity = _rb.gravityScale;
-        _mass = _rb.mass;
+        Rb = GetComponent<Rigidbody2D>();
+        _gravity = Rb.gravityScale;
+        _mass = Rb.mass;
         _col = GetComponent<Collider2D>();
         Animator = GetComponent<Animator>();
         spawn = GameObject.FindGameObjectWithTag("Respawn");
@@ -67,7 +70,7 @@ public class Player : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        Vector2 velocity = _rb.velocity;
+        Vector2 velocity = Rb.velocity;
         
         //set x velocity
         velocity.x = _moveDirection * moveSpeed;
@@ -76,19 +79,19 @@ public class Player : MonoBehaviour
         //set y velocity
         if (_doJump)
         {
-            _rb.mass = _mass;
+            Rb.mass = _mass;
             velocity.y = jumpForce; //applies vertical force to player
             _doJump = false;
         }
 
-        _rb.gravityScale = velocity.y switch
+        Rb.gravityScale = velocity.y switch
         {
             < 0 => _gravity * fallMultiplier,
             > 0 when !_isJumping => _gravity * lowJumpMultiplier,
             _ => _gravity
         };
 
-        _rb.velocity = velocity;
+        Rb.velocity = velocity;
         
         Animator.SetFloat(HorizontalSpeed, Math.Abs(velocity.x));
         Animator.SetFloat(VerticalVelocity, velocity.y);
@@ -121,6 +124,7 @@ public class Player : MonoBehaviour
     private void CheckDown(Collision2D col)
     {
         _isGrounded = CheckDirection(Vector2.down, jumpLayer);
+        if (_isGrounded && !HasTouchedGround) HasTouchedGround = true;
         Animator.SetBool(IsGrounded, _isGrounded);
         
         //if colliding with player
@@ -134,7 +138,7 @@ public class Player : MonoBehaviour
         bool onPlayer = Physics2D.BoxCastAll(bounds.center, bounds.size, 0f, Vector2.down, .1f, playerLayer)
             .Any(hit => hit.transform == col.transform);
         carryPlayer = onPlayer ? col.gameObject.GetComponent<Rigidbody2D>() : null;
-        _rb.mass = onPlayer ? 0 : _mass;
+        Rb.mass = onPlayer ? 0 : _mass;
     }
 
     //checks if the player is touching a wall in the specified direction (used for ground checks and to prevent sticking to walls)
@@ -153,11 +157,7 @@ public class Player : MonoBehaviour
                 Debug.Log("Win!");
                 break;
             case "Lethal":
-                OnDeath();
-                break;
-            case "Player":
-            case "Clone":
-                _rb.mass = _mass;
+                gameObject.GetComponent<Player>().OnDeath();
                 break;
         }
     }

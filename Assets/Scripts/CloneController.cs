@@ -4,7 +4,6 @@ using UnityEngine;
 public class CloneController : Player
 {
     public Queue<Action> Actions;
-    private Queue<Action> _currentActions;
     
     private bool _hasLeftSpawn;
 
@@ -17,38 +16,37 @@ public class CloneController : Player
             SpawnScript.SpawnNextInQueue();
             _hasLeftSpawn = true;
         }
+        
+        TimePassed += Time.deltaTime;
     }
 
     private void OnEnable()
     {
         Actions = new Queue<Action>();
-        _currentActions = new Queue<Action>();
-    }
-
-    public void Reset()
-    {
-        _currentActions = new Queue<Action>(Actions);
+        TimePassed = 0;
     }
 
     private void PlayRecording()
     {
-        if (_currentActions.TryPeek(out Action act))
+        if (Actions.TryPeek(out Action act))
         {
-            if (SpawnScript.timePassed < act.Time) return;
-            switch (act.ActionType)
+            if (TimePassed >= act.Time)
             {
-                case 0:
-                    Move(act.Value);
-                    break;
-                case 1:
-                    Jump(act.Value);
-                    break;
-                default:
-                    OnDeath();
-                    break;
-            }
+                switch (act.ActionType)
+                {
+                    case 0:
+                        Move(act.Value);
+                        break;
+                    case 1:
+                        Jump(act.Value);
+                        break;
+                    default:
+                        OnDeath();
+                        break;
+                }
 
-            _currentActions.Dequeue();
+                Actions.Dequeue();
+            }
         }
     }
 

@@ -47,7 +47,7 @@ TextureImporter:
   spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 16
+  spritePixelsToUnits: 15.99
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -949,8 +949,8 @@ TextureImporter:
       grass-tilemap_16: -1506407191
       grass-tilemap_3: 86946153
       grass-tilemap_24: 667640838
-      grass-tilemap_33: -826054037
       grass-tilemap_6: -966172366
+      grass-tilemap_33: -826054037
       grass-tilemap_36: -554323390
   spritePackingTag: 
   pSDRemoveMatte: 0
