@@ -1,8 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
@@ -55,6 +52,7 @@ public class SpawnManager : MonoBehaviour
             GameObject g = Instantiate(clonePrefab);
             g.GetComponent<CloneController>().Actions = new Queue<Action>(recordedActions);
         }
-        Instantiate(playerPrefab, transform.position, transform.rotation);
+
+        Instantiate(playerPrefab);
     }
 }

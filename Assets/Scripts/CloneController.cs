@@ -4,8 +4,8 @@ using UnityEngine;
 public class CloneController : Player
 {
     public Queue<Action> Actions;
-    
-    private bool _hasLeftSpawn;
+
+    private bool _isActive = true;
 
     private void Update()
     {
@@ -22,7 +22,7 @@ public class CloneController : Player
 
     private void PlayRecording()
     {
-        if (Actions.TryPeek(out Action act))
+        if (_isActive && Actions.TryPeek(out Action act))
         {
             if (TimePassed >= act.Time)
             {
@@ -47,7 +47,7 @@ public class CloneController : Player
     protected override void OnDeath()
     {
         Move(0);
-        Actions = new Queue<Action>();
-        Animator.SetBool(IsActive, false);
+        _isActive = false;
+        Animator.SetBool(IsActive, _isActive);
     }
 }

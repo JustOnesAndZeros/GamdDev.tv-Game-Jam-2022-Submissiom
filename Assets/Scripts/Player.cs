@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using UnityEngine;
 
 public struct Action
@@ -145,14 +144,6 @@ public class Player : MonoBehaviour
         _onPlayer = DownCast(playerLayer);
         carryPlayer = _onPlayer ? col.gameObject.GetComponent<Rigidbody2D>() : null;
         _rb.mass = _onPlayer ? 0 : _mass;
-    }
-
-    //checks if the player is touching a wall in the specified direction (used for ground checks and to prevent sticking to walls)
-    private bool CheckDirection(Vector2 direction, LayerMask layer)
-    {
-        var bounds = _col.bounds;
-        RaycastHit2D[] boxCast = Physics2D.BoxCastAll(bounds.center, bounds.size, 0f, direction, .1f, layer);
-        return boxCast.Any(hit => hit.collider.gameObject != gameObject);
     }
 
     private void OnTriggerEnter2D(Collider2D col)

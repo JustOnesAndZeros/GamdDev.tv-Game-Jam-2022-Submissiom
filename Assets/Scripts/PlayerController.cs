@@ -8,8 +8,6 @@ public class PlayerController : Player
 
     private Queue<Action> _recordedActions;
 
-    private bool _hasMoved;
-
     //enable user input and subscribe to events
     private void OnEnable()
     {
