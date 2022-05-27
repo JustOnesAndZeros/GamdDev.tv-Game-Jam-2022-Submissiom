@@ -55,4 +55,10 @@ public class SpawnManager : MonoBehaviour
 
         Instantiate(playerPrefab);
     }
+
+    public void ResetLevel()
+    {
+        _clones.Clear();
+        Reset();
+    }
 }

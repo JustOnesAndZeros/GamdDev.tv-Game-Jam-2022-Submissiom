@@ -43,11 +43,11 @@ TextureImporter:
   lightmap: 0
   compressionQuality: 50
   spriteMode: 2
-  spriteExtrude: 1
+  spriteExtrude: 0
   spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 15.99
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -918,14 +918,14 @@ TextureImporter:
       grass-tilemap_5: 2042775529
       grass-tilemap_19: 1140975055
       grass-tilemap_21: -1198981107
+      grass-tilemap_33: -826054037
       grass-tilemap_23: -1962036023
-      grass-tilemap_27: -1855231471
+      grass-tilemap_36: -554323390
       grass-tilemap_14: 1125629797
       grass-tilemap_28: -1570205950
       grass-tilemap_2: -1784173174
       grass-tilemap_9: 955636313
       grass-tilemap_15: -738997613
-      grass-tilemap_25: 980658887
       grass-tilemap_4: 1168982560
       grass-tilemap_35: 503343415
       grass-tilemap_12: 610400250
@@ -949,9 +949,9 @@ TextureImporter:
       grass-tilemap_16: -1506407191
       grass-tilemap_3: 86946153
       grass-tilemap_24: 667640838
-      grass-tilemap_33: -826054037
       grass-tilemap_6: -966172366
-      grass-tilemap_36: -554323390
+      grass-tilemap_25: 980658887
+      grass-tilemap_27: -1855231471
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

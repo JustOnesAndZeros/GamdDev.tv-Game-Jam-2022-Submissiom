@@ -48,6 +48,6 @@ public class CloneController : Player
     {
         Move(0);
         _isActive = false;
-        Animator.SetBool(IsActive, _isActive);
+        Animator.SetBool(AnimIsActive, _isActive);
     }
 }

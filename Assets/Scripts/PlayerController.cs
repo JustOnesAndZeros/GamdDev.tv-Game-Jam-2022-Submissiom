@@ -15,6 +15,8 @@ public class PlayerController : Player
         
         _playerInputActions = new PlayerInputActions();
 
+        _playerInputActions.Movement.Reset.started += OnReset;
+
         _playerInputActions.Movement.Horizontal.started += OnMove;
         _playerInputActions.Movement.Horizontal.canceled += OnMove;
         
@@ -27,6 +29,8 @@ public class PlayerController : Player
     //unsubscribes from events
     private void OnDisable()
     {
+        _playerInputActions.Movement.Reset.started -= OnReset;
+        
         _playerInputActions.Movement.Horizontal.started -= OnMove;
         _playerInputActions.Movement.Horizontal.canceled -= OnMove;
         
@@ -60,6 +64,11 @@ public class PlayerController : Player
         _recordedActions.Enqueue(new Action(TimePassed, -1, -1));
         SpawnScript.AddToQueue(_recordedActions);
         SpawnScript.Reset();
+    }
+
+    private void OnReset(InputAction.CallbackContext ctx)
+    {
+        SpawnScript.ResetLevel();
     }
 }
 

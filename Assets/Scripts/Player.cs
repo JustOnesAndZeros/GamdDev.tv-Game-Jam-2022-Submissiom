@@ -1,5 +1,7 @@
 ﻿using System;
+using JetBrains.Annotations;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public struct Action
 {
@@ -44,11 +46,13 @@ public class Player : MonoBehaviour
     private float _gravity;
     private float _mass;
 
+    private SpriteRenderer _spriteRenderer;
     protected Animator Animator;
-    protected static readonly int IsActive = Animator.StringToHash("isActive");
-    private static readonly int IsGrounded = Animator.StringToHash("isGrounded");
-    private static readonly int HorizontalSpeed = Animator.StringToHash("horizontalSpeed");
-    private static readonly int VerticalVelocity = Animator.StringToHash("verticalVelocity");
+    protected static readonly int AnimIsActive = Animator.StringToHash("isActive");
+    private static readonly int AnimIsGrounded = Animator.StringToHash("isGrounded");
+    private static readonly int AnimOnPlayer = Animator.StringToHash("onPlayer");
+    private static readonly int AnimHorizontalSpeed = Animator.StringToHash("horizontalSpeed");
+    private static readonly int AnimVerticalVelocity = Animator.StringToHash("verticalVelocity");
 
     private void Awake()
     {
@@ -56,7 +60,8 @@ public class Player : MonoBehaviour
         _gravity = _rb.gravityScale;
         _mass = _rb.mass;
         _col = GetComponent<Collider2D>();
-        
+
+        _spriteRenderer = GetComponent<SpriteRenderer>();
         Animator = GetComponent<Animator>();
         
         spawn = GameObject.FindGameObjectWithTag("Respawn");
@@ -93,15 +98,16 @@ public class Player : MonoBehaviour
 
         _rb.velocity = velocity;
         
-        Animator.SetFloat(HorizontalSpeed, Math.Abs(velocity.x));
-        Animator.SetFloat(VerticalVelocity, velocity.y);
+        Animator.SetFloat(AnimHorizontalSpeed, Math.Abs(velocity.x));
+        Animator.SetFloat(AnimVerticalVelocity, velocity.y);
     }
 
     //sets horizontal player movement
     protected void Move(float direction)
     {
         _moveDirection = direction;
-        if (direction != 0) transform.eulerAngles = 180 * (direction < 0 ? Vector3.up : Vector3.zero);
+        
+        if (direction != 0) _spriteRenderer.flipX = direction < 0;
     }
 
     protected void Jump(float isDown)
@@ -124,10 +130,16 @@ public class Player : MonoBehaviour
     private void CheckDown(Collision2D col)
     {
         _isGrounded = DownCast(jumpLayer);
-        Animator.SetBool(IsGrounded, _isGrounded);
+        Animator.SetBool(AnimIsGrounded, _isGrounded);
         
         //if colliding with player
-        if ((playerLayer.value & (1 << col.transform.gameObject.layer)) > 0) OnPlayer(col);
+        if ((playerLayer.value & (1 << col.transform.gameObject.layer)) > 0)
+        {
+            _onPlayer = DownCast(playerLayer);
+            Animator.SetBool(AnimOnPlayer, _onPlayer);
+            carryPlayer = _onPlayer ? col.gameObject.GetComponent<Rigidbody2D>() : null;
+            _rb.mass = _onPlayer ? 0 : _mass;
+        }
     }
 
     private bool DownCast(LayerMask layerMask)
@@ -135,17 +147,10 @@ public class Player : MonoBehaviour
         Bounds bounds = _col.bounds;
         Vector2 pos = new Vector2(bounds.center.x, bounds.min.y - .05f);
         Vector2 size = new Vector2(bounds.size.x, .05f);
-        
+
         return Physics2D.BoxCast(pos, size, 0, Vector2.down, 0f, layerMask);
     }
-
-    private void OnPlayer(Collision2D col)
-    {
-        _onPlayer = DownCast(playerLayer);
-        carryPlayer = _onPlayer ? col.gameObject.GetComponent<Rigidbody2D>() : null;
-        _rb.mass = _onPlayer ? 0 : _mass;
-    }
-
+    
     private void OnTriggerEnter2D(Collider2D col)
     {
         switch (col.tag)
