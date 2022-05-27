@@ -120,4 +120,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 5403664661519252644, guid: 58ce8e253c9fdb945861d5ba141c776d, type: 3}
   clonePrefab: {fileID: 193828020484501176, guid: 428422d7e95acfe43ae0d0721a9c31e0, type: 3}
-  maxCloneCount: 3
+  maxCloneCount: 1
