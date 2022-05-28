@@ -79,24 +79,25 @@ public class Player : MonoBehaviour
         Animator.SetFloat(AnimVerticalVelocity, _rb.velocity.y);
     }
 
-    public void SetVelocity(float addedMovement)
+    public void SetVelocity(Vector2 addedMovement)
     {
         Vector2 velocity = _rb.velocity;
         
         //set x velocity
-        velocity.x = moveDirection * moveSpeed + addedMovement;
+        velocity.x = moveDirection * moveSpeed + addedMovement.x;
 
         //set y velocity
         if (_doJump)
         {
+            transform.parent = null;
             _rb.mass = _mass;
-            velocity.y = jumpForce; //applies vertical force to player
+            velocity.y = jumpForce + addedMovement.y; //applies vertical force to player
             _doJump = false;
         }
         else if (transform.parent != null)
         {
             _rb.gravityScale = 0;
-            velocity.y = transform.parent.GetComponent<Rigidbody2D>().velocity.y;
+            velocity.y = addedMovement.y / 2;
         }
 
         _rb.gravityScale = velocity.y switch
@@ -109,7 +110,7 @@ public class Player : MonoBehaviour
         _rb.velocity = velocity;
         
         Player[] children = transform.Cast<Transform>().SelectMany(t => t.GetComponents<Player>()).ToArray();
-        foreach (Player script in children) script.SetVelocity(_rb.velocity.x);
+        foreach (Player script in children) script.SetVelocity(_rb.velocity);
     }
 
     //sets horizontal player movement
@@ -176,8 +177,8 @@ public class Player : MonoBehaviour
                 gameObject.GetComponent<Player>().OnDeath();
                 _hasTouchedLethal = true;
                 break;
-            case "Player":
-            case "Clone":
+            case "Player" when _rb.velocity.y < 0:
+            case "Clone" when _rb.velocity.y < 0:
                 _rb.mass = 0;
                 break;
         }

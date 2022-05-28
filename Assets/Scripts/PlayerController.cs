@@ -44,7 +44,7 @@ public class PlayerController : Player
     private void FixedUpdate()
     {
         IEnumerable<GameObject> players = GameObject.FindGameObjectsWithTag("Clone").Concat(GameObject.FindGameObjectsWithTag("Player"));
-        foreach (GameObject player in players) if (player.transform.parent == null) player.GetComponent<Player>().SetVelocity(0);
+        foreach (GameObject player in players) if (player.transform.parent == null) player.GetComponent<Player>().SetVelocity(Vector2.zero);
     }
 
     private void OnMove(InputAction.CallbackContext ctx)
