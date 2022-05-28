@@ -1,7 +1,6 @@
 ﻿using System;
-using JetBrains.Annotations;
+using System.Linq;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 public struct Action
 {
@@ -24,15 +23,12 @@ public class Player : MonoBehaviour
 
     public GameObject spawn; //spawn object
     protected SpawnManager SpawnScript;
-
-    [SerializeField] private Rigidbody2D carryPlayer;
     
     [SerializeField] private LayerMask playerLayer; //layer to check with boxcast
     [SerializeField] private LayerMask jumpLayer;
     
     [SerializeField] protected float moveSpeed; //horizontal movement speed
-    private float _moveDirection;
-    private bool _onPlayer;
+    [SerializeField] public float moveDirection;
     
     [SerializeField] private float jumpForce; //vertical impulse force for jumping
     [SerializeField] private float lowJumpMultiplier;
@@ -45,6 +41,8 @@ public class Player : MonoBehaviour
     
     private float _gravity;
     private float _mass;
+
+    private bool _hasTouchedLethal;
 
     private SpriteRenderer _spriteRenderer;
     protected Animator Animator;
@@ -73,13 +71,20 @@ public class Player : MonoBehaviour
         transform.position = spawn.transform.position;
     }
 
-    protected virtual void FixedUpdate()
+    protected virtual void Update()
+    {
+        TimePassed += Time.deltaTime;
+        
+        Animator.SetFloat(AnimHorizontalSpeed, Math.Abs(_rb.velocity.x));
+        Animator.SetFloat(AnimVerticalVelocity, _rb.velocity.y);
+    }
+
+    public void SetVelocity(float addedMovement)
     {
         Vector2 velocity = _rb.velocity;
         
         //set x velocity
-        velocity.x = _moveDirection * moveSpeed;
-        if (_onPlayer) velocity.x += carryPlayer.velocity.x;
+        velocity.x = moveDirection * moveSpeed + addedMovement;
 
         //set y velocity
         if (_doJump)
@@ -87,6 +92,11 @@ public class Player : MonoBehaviour
             _rb.mass = _mass;
             velocity.y = jumpForce; //applies vertical force to player
             _doJump = false;
+        }
+        else if (transform.parent != null)
+        {
+            _rb.gravityScale = 0;
+            velocity.y = transform.parent.GetComponent<Rigidbody2D>().velocity.y;
         }
 
         _rb.gravityScale = velocity.y switch
@@ -98,14 +108,14 @@ public class Player : MonoBehaviour
 
         _rb.velocity = velocity;
         
-        Animator.SetFloat(AnimHorizontalSpeed, Math.Abs(velocity.x));
-        Animator.SetFloat(AnimVerticalVelocity, velocity.y);
+        Player[] children = transform.Cast<Transform>().SelectMany(t => t.GetComponents<Player>()).ToArray();
+        foreach (Player script in children) script.SetVelocity(_rb.velocity.x);
     }
 
     //sets horizontal player movement
     protected void Move(float direction)
     {
-        _moveDirection = direction;
+        moveDirection = direction;
         
         if (direction != 0) _spriteRenderer.flipX = direction < 0;
     }
@@ -135,20 +145,24 @@ public class Player : MonoBehaviour
         //if colliding with player
         if ((playerLayer.value & (1 << col.transform.gameObject.layer)) > 0)
         {
-            _onPlayer = DownCast(playerLayer);
-            Animator.SetBool(AnimOnPlayer, _onPlayer);
-            carryPlayer = _onPlayer ? col.gameObject.GetComponent<Rigidbody2D>() : null;
-            _rb.mass = _onPlayer ? 0 : _mass;
+            bool onPlayer = false;
+            RaycastHit2D hit = DownCast(playerLayer);
+            if (hit.collider != null) onPlayer = hit.collider.gameObject == col.gameObject;
+                
+            Animator.SetBool(AnimOnPlayer, onPlayer);
+            transform.SetParent(onPlayer ? col.transform : null);
+            if (onPlayer) Debug.Log("set parent");
+            _rb.mass = onPlayer ? 0 : _mass;
         }
     }
 
-    private bool DownCast(LayerMask layerMask)
+    private RaycastHit2D DownCast(LayerMask layerMask)
     {
         Bounds bounds = _col.bounds;
         Vector2 pos = new Vector2(bounds.center.x, bounds.min.y - .05f);
         Vector2 size = new Vector2(bounds.size.x, .05f);
 
-        return Physics2D.BoxCast(pos, size, 0, Vector2.down, 0f, layerMask);
+        return Physics2D.BoxCast(pos, size, 0, Vector2.down, .1f, layerMask);
     }
     
     private void OnTriggerEnter2D(Collider2D col)
@@ -158,8 +172,13 @@ public class Player : MonoBehaviour
             case "Finish":
                 Debug.Log("Win!");
                 break;
-            case "Lethal":
+            case "Lethal" when !_hasTouchedLethal:
                 gameObject.GetComponent<Player>().OnDeath();
+                _hasTouchedLethal = true;
+                break;
+            case "Player":
+            case "Clone":
+                _rb.mass = 0;
                 break;
         }
     }

@@ -7,11 +7,11 @@ public class CloneController : Player
 
     private bool _isActive = true;
 
-    private void Update()
+    protected override void Update()
     {
         PlayRecording();
         
-        TimePassed += Time.deltaTime;
+        base.Update();
     }
 
     private void OnEnable()

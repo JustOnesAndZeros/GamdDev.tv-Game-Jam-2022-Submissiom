@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Cinemachine;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class SpawnManager : MonoBehaviour
 {
@@ -33,7 +34,7 @@ public class SpawnManager : MonoBehaviour
     public void Reset()
     {
         //destroy existing player and clones
-        foreach (GameObject p in GameObject.FindGameObjectsWithTag("Clone").Concat(GameObject.FindGameObjectsWithTag("Player")))
+        foreach (GameObject p in GameObject.FindGameObjectsWithTag("Player").Concat(GameObject.FindGameObjectsWithTag("Clone")))
         {
             _targetGroup.RemoveMember(p.transform);
             Destroy(p);
@@ -48,6 +49,7 @@ public class SpawnManager : MonoBehaviour
     {
         _clones.Enqueue(new Queue<Action>(actions));
         if (_clones.Count > maxCloneCount) _clones.Dequeue();
+        Reset();
     }
 
     private void SpawnQueue()

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -40,6 +41,12 @@ public class PlayerController : Player
         _playerInputActions.Disable();
     }
 
+    private void FixedUpdate()
+    {
+        IEnumerable<GameObject> players = GameObject.FindGameObjectsWithTag("Clone").Concat(GameObject.FindGameObjectsWithTag("Player"));
+        foreach (GameObject player in players) if (player.transform.parent == null) player.GetComponent<Player>().SetVelocity(0);
+    }
+
     private void OnMove(InputAction.CallbackContext ctx)
     {
         float direction = ctx.ReadValue<float>();
@@ -54,16 +61,10 @@ public class PlayerController : Player
         _recordedActions.Enqueue(new Action(TimePassed, 1, isDown)); //records jump force and time to be replayed next loop
     }
 
-    private void Update()
-    {
-        TimePassed += Time.deltaTime;
-    }
-
     protected override void OnDeath()
     {
         _recordedActions.Enqueue(new Action(TimePassed, -1, -1));
         SpawnScript.AddToQueue(_recordedActions);
-        SpawnScript.Reset();
     }
 
     private void OnReset(InputAction.CallbackContext ctx)
@@ -71,5 +72,3 @@ public class PlayerController : Player
         SpawnScript.ResetLevel();
     }
 }
-
-
