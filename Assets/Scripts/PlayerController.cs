@@ -51,15 +51,15 @@ public class PlayerController : Player
 
         foreach (var clone in GameObject.FindGameObjectsWithTag("Clone"))
         {
-            bool inTargetGroup = SpawnScript.targetGroup.m_Targets.Any(target => target.target == transform);
+            bool inTargetGroup = SpawnScript.targetGroup.m_Targets.Any(target => target.target == clone.transform);
             bool inRange = Vector2.Distance(clone.transform.position, transform.position) <= targetGroupRange;
             switch (inRange)
             {
-                case true when inTargetGroup:
-                    SpawnScript.targetGroup.RemoveMember(clone.transform);
-                    break;
-                case false when !inTargetGroup:
+                case true when !inTargetGroup:
                     SpawnScript.targetGroup.AddMember(clone.transform, 1, SpawnScript.targetGroupRadius);
+                    break;
+                case false when inTargetGroup:
+                    SpawnScript.targetGroup.RemoveMember(clone.transform);
                     break;
             }
         }

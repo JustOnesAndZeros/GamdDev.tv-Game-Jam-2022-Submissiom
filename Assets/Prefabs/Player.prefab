@@ -249,5 +249,4 @@ MonoBehaviour:
   jumpForce: 8
   lowJumpMultiplier: 2
   fallMultiplier: 2.5
-  targetGroupRadius: 5
-  targetGroupRange: 5
+  targetGroupRange: 10

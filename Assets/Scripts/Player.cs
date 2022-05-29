@@ -74,6 +74,8 @@ public class Player : MonoBehaviour
     {
         TimePassed += Time.deltaTime;
         
+        if (transform.parent) if (Math.Abs(transform.position.x - transform.parent.position.x) > 0.5f) transform.SetParent(null);
+        
         Animator.SetFloat(AnimHorizontalSpeed, Math.Abs(_rb.velocity.x));
         Animator.SetFloat(AnimVerticalVelocity, _rb.velocity.y);
         Animator.SetBool(AnimOnPlayer, transform.parent);
@@ -153,7 +155,6 @@ public class Player : MonoBehaviour
             if (hit) onPlayer = hit.collider.gameObject == col.collider.gameObject;
             
             if (!transform.parent) transform.SetParent(onPlayer ? col.transform : null);
-            else if (!onPlayer) transform.SetParent(null);
             _rb.mass = onPlayer ? 0 : _mass;
         }
     }
