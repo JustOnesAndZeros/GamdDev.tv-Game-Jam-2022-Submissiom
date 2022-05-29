@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using UnityEngine;
 
 public struct Action
@@ -38,7 +37,7 @@ public class Player : MonoBehaviour
     private bool _isJumping;
 
     protected float TimePassed;
-    
+
     private float _gravity;
     private float _mass;
 
@@ -77,6 +76,7 @@ public class Player : MonoBehaviour
         
         Animator.SetFloat(AnimHorizontalSpeed, Math.Abs(_rb.velocity.x));
         Animator.SetFloat(AnimVerticalVelocity, _rb.velocity.y);
+        Animator.SetBool(AnimOnPlayer, transform.parent);
     }
 
     public void SetVelocity(Vector2 addedMovement)
@@ -89,17 +89,17 @@ public class Player : MonoBehaviour
         //set y velocity
         if (_doJump)
         {
-            transform.parent = null;
+            transform.SetParent(null);
             _rb.mass = _mass;
-            velocity.y = jumpForce + addedMovement.y; //applies vertical force to player
+            velocity.y = jumpForce; //applies vertical force to player
             _doJump = false;
         }
         else if (transform.parent != null)
         {
             _rb.gravityScale = 0;
-            velocity.y = addedMovement.y / 2;
+            velocity.y = addedMovement.y;
         }
-
+        
         _rb.gravityScale = velocity.y switch
         {
             < 0 => _gravity * fallMultiplier,
@@ -108,9 +108,11 @@ public class Player : MonoBehaviour
         };
 
         _rb.velocity = velocity;
-        
-        Player[] children = transform.Cast<Transform>().SelectMany(t => t.GetComponents<Player>()).ToArray();
-        foreach (Player script in children) script.SetVelocity(_rb.velocity);
+
+        foreach (Player script in GetComponentsInChildren<Player>())
+        {
+            if (script.transform.parent == transform) script.SetVelocity(_rb.velocity);
+        }
     }
 
     //sets horizontal player movement
@@ -134,36 +136,34 @@ public class Player : MonoBehaviour
                 break;
         }
     }
-    
+
     protected virtual void OnCollisionEnter2D(Collision2D col) { CheckDown(col); }
     protected virtual void OnCollisionExit2D(Collision2D other) { CheckDown(other); }
 
     private void CheckDown(Collision2D col)
     {
-        _isGrounded = DownCast(jumpLayer);
+        _isGrounded = BoxCast(jumpLayer);
         Animator.SetBool(AnimIsGrounded, _isGrounded);
         
         //if colliding with player
-        if ((playerLayer.value & (1 << col.transform.gameObject.layer)) > 0)
+        if ((col.gameObject.CompareTag("Clone") || col.gameObject.CompareTag("Player")) && _rb.velocity.y <= 0)
         {
             bool onPlayer = false;
-            RaycastHit2D hit = DownCast(playerLayer);
-            if (hit.collider != null) onPlayer = hit.collider.gameObject == col.gameObject;
-                
-            Animator.SetBool(AnimOnPlayer, onPlayer);
-            transform.SetParent(onPlayer ? col.transform : null);
-            if (onPlayer) Debug.Log("set parent");
+            RaycastHit2D hit = BoxCast(playerLayer);
+            if (hit) onPlayer = hit.collider.gameObject == col.collider.gameObject;
+            
+            if (!transform.parent) transform.SetParent(onPlayer ? col.transform : null);
             _rb.mass = onPlayer ? 0 : _mass;
         }
     }
 
-    private RaycastHit2D DownCast(LayerMask layerMask)
+    private RaycastHit2D BoxCast(LayerMask layerMask)
     {
         Bounds bounds = _col.bounds;
         Vector2 pos = new Vector2(bounds.center.x, bounds.min.y - .05f);
         Vector2 size = new Vector2(bounds.size.x, .05f);
 
-        return Physics2D.BoxCast(pos, size, 0, Vector2.down, .1f, layerMask);
+        return Physics2D.BoxCast(pos, size, 0, Vector2.down, 0, layerMask);
     }
     
     private void OnTriggerEnter2D(Collider2D col)
@@ -183,6 +183,6 @@ public class Player : MonoBehaviour
                 break;
         }
     }
-
+    
     protected virtual void OnDeath() {}
 }
