@@ -2,14 +2,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Cinemachine;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class SpawnManager : MonoBehaviour
 {
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject clonePrefab;
 
-    private CinemachineTargetGroup _targetGroup;
+    public CinemachineTargetGroup targetGroup;
+    [SerializeField] public float targetGroupRadius;
 
     private Animator _animator;
     private static readonly int SpawnTrigger = Animator.StringToHash("spawnTrigger");
@@ -23,7 +23,7 @@ public class SpawnManager : MonoBehaviour
         _clones = new Queue<Queue<Action>>();
         _currentClones = new Queue<Queue<Action>>();
         _animator = GetComponent<Animator>();
-        _targetGroup = GameObject.FindGameObjectWithTag("TargetGroup").GetComponent<CinemachineTargetGroup>();
+        targetGroup = GameObject.FindGameObjectWithTag("TargetGroup").GetComponent<CinemachineTargetGroup>();
     }
 
     private void Start()
@@ -36,7 +36,7 @@ public class SpawnManager : MonoBehaviour
         //destroy existing player and clones
         foreach (GameObject p in GameObject.FindGameObjectsWithTag("Player").Concat(GameObject.FindGameObjectsWithTag("Clone")))
         {
-            _targetGroup.RemoveMember(p.transform);
+            targetGroup.RemoveMember(p.transform);
             Destroy(p);
         }
         
@@ -57,14 +57,14 @@ public class SpawnManager : MonoBehaviour
         _animator.SetTrigger(SpawnTrigger);
         
         GameObject player = Instantiate(playerPrefab);
-        _targetGroup.AddMember(player.transform, 1f, 5f);
+        targetGroup.AddMember(player.transform, 1f, targetGroupRadius);
         
         while (_currentClones.Count > 0)
         {
             Queue<Action> recordedActions = _currentClones.Dequeue();
             GameObject clone = Instantiate(clonePrefab);
             clone.GetComponent<CloneController>().Actions = new Queue<Action>(recordedActions);
-            _targetGroup.AddMember(clone.transform, 1f, 5f);
+            targetGroup.AddMember(clone.transform, 1f, targetGroupRadius);
         }
     }
 

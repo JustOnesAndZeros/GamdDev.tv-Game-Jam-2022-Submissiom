@@ -249,4 +249,5 @@ MonoBehaviour:
   jumpForce: 8
   lowJumpMultiplier: 2
   fallMultiplier: 2.5
-  parent: {fileID: 0}
+  targetGroupRadius: 5
+  targetGroupRange: 5

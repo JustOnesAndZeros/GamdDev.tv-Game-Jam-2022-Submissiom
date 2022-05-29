@@ -153,6 +153,7 @@ public class Player : MonoBehaviour
             if (hit) onPlayer = hit.collider.gameObject == col.collider.gameObject;
             
             if (!transform.parent) transform.SetParent(onPlayer ? col.transform : null);
+            else if (!onPlayer) transform.SetParent(null);
             _rb.mass = onPlayer ? 0 : _mass;
         }
     }

@@ -138,6 +138,10 @@ PrefabInstance:
       propertyPath: maxCloneCount
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 2415187219672337254, guid: d4f65a8fbd5c1ea4cb4d9e003894a0d8, type: 3}
+      propertyPath: targetGroupRadius
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 2415187219672337256, guid: d4f65a8fbd5c1ea4cb4d9e003894a0d8, type: 3}
       propertyPath: m_RootOrder
       value: 2
@@ -21356,6 +21360,10 @@ PrefabInstance:
     - target: {fileID: 2107957329249730809, guid: 698dd34fcdc9f594a87af4f48a9056ed, type: 3}
       propertyPath: m_LocalRotation.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2107957330148286282, guid: 698dd34fcdc9f594a87af4f48a9056ed, type: 3}
+      propertyPath: m_PositionMode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2107957330148286285, guid: 698dd34fcdc9f594a87af4f48a9056ed, type: 3}
       propertyPath: m_LocalPosition.x
