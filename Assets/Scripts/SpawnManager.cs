@@ -14,7 +14,7 @@ public class SpawnManager : MonoBehaviour
     private Animator _animator;
     private static readonly int SpawnTrigger = Animator.StringToHash("spawnTrigger");
 
-    [SerializeField] private int maxCloneCount;
+    [SerializeField] public int maxCloneCount;
     private Queue<Queue<Action>> _clones;
     private Queue<Queue<Action>> _currentClones;
 

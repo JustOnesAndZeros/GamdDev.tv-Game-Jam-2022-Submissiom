@@ -50,6 +50,10 @@ public class Player : MonoBehaviour
     private static readonly int AnimOnPlayer = Animator.StringToHash("onPlayer");
     private static readonly int AnimHorizontalSpeed = Animator.StringToHash("horizontalSpeed");
     private static readonly int AnimVerticalVelocity = Animator.StringToHash("verticalVelocity");
+    
+    [SerializeField] private AudioSource jumpSound;
+    [SerializeField] protected AudioSource deathSound;
+    [SerializeField] private AudioSource fanfareSound;
 
     private void Awake()
     {
@@ -78,6 +82,7 @@ public class Player : MonoBehaviour
         
         Animator.SetFloat(AnimHorizontalSpeed, Math.Abs(_rb.velocity.x));
         Animator.SetFloat(AnimVerticalVelocity, _rb.velocity.y);
+        Animator.SetBool(AnimIsGrounded, _isGrounded);
         Animator.SetBool(AnimOnPlayer, transform.parent);
     }
 
@@ -93,7 +98,7 @@ public class Player : MonoBehaviour
         {
             transform.SetParent(null);
             _rb.mass = _mass;
-            velocity.y = jumpForce; //applies vertical force to player
+            velocity.y = jumpForce + addedMovement.y / 2; //applies vertical force to player
             _doJump = false;
         }
         else if (transform.parent != null)
@@ -132,6 +137,7 @@ public class Player : MonoBehaviour
             case 1 when _isGrounded:
                 _isJumping = true;
                 _doJump = true;
+                jumpSound.Play();
                 break;
             default:
                 _isJumping = false;
@@ -145,8 +151,7 @@ public class Player : MonoBehaviour
     private void CheckDown(Collision2D col)
     {
         _isGrounded = BoxCast(jumpLayer);
-        Animator.SetBool(AnimIsGrounded, _isGrounded);
-        
+
         //if colliding with player
         if ((col.gameObject.CompareTag("Clone") || col.gameObject.CompareTag("Player")) && _rb.velocity.y <= 0)
         {
@@ -173,7 +178,8 @@ public class Player : MonoBehaviour
         switch (col.tag)
         {
             case "Finish":
-                Debug.Log("Win!");
+                fanfareSound.Play();
+                GameObject.Find("LevelLoader").GetComponent<LevelLoader>().LoadNextLevel();
                 break;
             case "Lethal" when !_hasTouchedLethal:
                 gameObject.GetComponent<Player>().OnDeath();
@@ -185,6 +191,9 @@ public class Player : MonoBehaviour
                 break;
         }
     }
-    
-    protected virtual void OnDeath() {}
+
+    protected virtual void OnDeath()
+    {
+        deathSound.Play();
+    }
 }
