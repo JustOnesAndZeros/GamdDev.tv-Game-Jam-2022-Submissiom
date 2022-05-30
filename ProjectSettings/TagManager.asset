@@ -9,6 +9,8 @@ TagManager:
   - TargetGroup
   - Music
   - Toggle
+  - Timer
+  - EndMessage
   layers:
   - Default
   - TransparentFX
