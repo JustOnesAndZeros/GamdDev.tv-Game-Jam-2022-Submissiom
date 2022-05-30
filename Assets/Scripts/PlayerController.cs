@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,8 +9,6 @@ public class PlayerController : Player
     private PlayerInputActions _playerInputActions;
 
     private Queue<Action> _recordedActions;
-    
-    [SerializeField] private float targetGroupRange;
 
     //enable user input and subscribe to events
     private void OnEnable()
@@ -41,26 +40,6 @@ public class PlayerController : Player
         _playerInputActions.Movement.Jump.canceled -= OnJump;
         
         _playerInputActions.Disable();
-    }
-
-    protected override void Update()
-    {
-        base.Update();
-
-        foreach (var clone in GameObject.FindGameObjectsWithTag("Clone"))
-        {
-            bool inTargetGroup = SpawnScript.targetGroup.m_Targets.Any(target => target.target == clone.transform);
-            bool inRange = Vector2.Distance(clone.transform.position, transform.position) <= targetGroupRange;
-            switch (inRange)
-            {
-                case true when !inTargetGroup:
-                    SpawnScript.targetGroup.AddMember(clone.transform, 1, SpawnScript.targetGroupRadius);
-                    break;
-                case false when inTargetGroup:
-                    SpawnScript.targetGroup.RemoveMember(clone.transform);
-                    break;
-            }
-        }
     }
 
     private void FixedUpdate()
