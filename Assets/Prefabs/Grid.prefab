@@ -643,7 +643,7 @@ GameObject:
   - component: {fileID: 6737784192804324267}
   - component: {fileID: 3199157901026208018}
   m_Layer: 3
-  m_Name: Toggleable walls background
+  m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1069,6 +1069,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startOn: 1
+  minButtonCount: 1
 --- !u!1 &6523655028997708847
 GameObject:
   m_ObjectHideFlags: 0
@@ -1327,3 +1328,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startOn: 0
+  minButtonCount: 1
