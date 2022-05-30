@@ -177,8 +177,8 @@ EdgeCollider2D:
   m_Offset: {x: 0, y: 0}
   m_EdgeRadius: 0
   m_Points:
-  - {x: -0.4375, y: 0.4375}
-  - {x: 0.375, y: 0.4375}
+  - {x: -0.5, y: 0.4375}
+  - {x: 0.4375, y: 0.4375}
   m_AdjacentStartPoint: {x: 0, y: 0}
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0
@@ -226,7 +226,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.8125, y: 0.09375}
+  m_Size: {x: 0.9375, y: 0.09375}
   m_EdgeRadius: 0
 --- !u!82 &7203261655652139372
 AudioSource:
@@ -543,4 +543,3 @@ MonoBehaviour:
   jumpSound: {fileID: 7203261655652139372}
   deathSound: {fileID: 3696809837600768237}
   fanfareSound: {fileID: 3363270025376748008}
-  targetGroupRange: 8
