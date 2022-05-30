@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
 public class CloneController : Player
 {
@@ -46,6 +45,8 @@ public class CloneController : Player
 
     protected override void OnDeath()
     {
+        base.OnDeath();
+        
         Move(0);
         _isActive = false;
         Animator.SetBool(AnimIsActive, _isActive);
