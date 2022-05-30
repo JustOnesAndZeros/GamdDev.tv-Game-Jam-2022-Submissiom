@@ -1,5 +1,3 @@
-using System;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ButtonPress : MonoBehaviour
@@ -7,7 +5,7 @@ public class ButtonPress : MonoBehaviour
     private Animator _animator;
     private static readonly int IsDown = Animator.StringToHash("isDown");
 
-    private GameObject[] _walls;
+    [SerializeField] private GameObject[] walls;
 
     private int _triggerCount;
     private bool _isDown;
@@ -15,7 +13,7 @@ public class ButtonPress : MonoBehaviour
     private void Awake()
     {
         _animator = GetComponent<Animator>();
-        _walls = GameObject.FindGameObjectsWithTag("Toggle");
+        if (walls.Length == 0) walls = GameObject.FindGameObjectsWithTag("Toggle");
 
         _isDown = false;
     }
@@ -45,7 +43,7 @@ public class ButtonPress : MonoBehaviour
             _isDown = !_isDown;
             _animator.SetBool(IsDown, _isDown);
             
-            foreach (var wall in _walls)
+            foreach (var wall in walls)
             {
                 wall.GetComponent<WallToggle>().Toggle(_isDown ? 1 : -1);
             }

@@ -39,7 +39,6 @@ public class Player : MonoBehaviour
     protected float TimePassed;
 
     private float _gravity;
-    private float _mass;
 
     private bool _hasTouchedLethal;
 
@@ -59,7 +58,6 @@ public class Player : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody2D>();
         _gravity = _rb.gravityScale;
-        _mass = _rb.mass;
         _col = GetComponent<Collider2D>();
 
         _spriteRenderer = GetComponent<SpriteRenderer>();
@@ -97,22 +95,24 @@ public class Player : MonoBehaviour
         if (_doJump)
         {
             transform.SetParent(null);
-            _rb.mass = _mass;
             velocity.y = jumpForce + addedMovement.y / 2; //applies vertical force to player
             _doJump = false;
         }
-        else if (transform.parent != null)
+        else if (transform.parent)
         {
             _rb.gravityScale = 0;
             velocity.y = addedMovement.y;
+            var tr = transform;
+            tr.position = new Vector2(tr.position.x, tr.parent.position.y + 15/16f);
         }
-        
-        _rb.gravityScale = velocity.y switch
-        {
-            < 0 => _gravity * fallMultiplier,
-            > 0 when !_isJumping => _gravity * lowJumpMultiplier,
-            _ => _gravity
-        };
+        else
+        {_rb.gravityScale = velocity.y switch
+            {
+                < 0 => _gravity * fallMultiplier,
+                > 0 when !_isJumping => _gravity * lowJumpMultiplier,
+                _ => _gravity
+            };
+        }
 
         _rb.velocity = velocity;
 
@@ -158,9 +158,8 @@ public class Player : MonoBehaviour
             bool onPlayer = false;
             RaycastHit2D hit = BoxCast(playerLayer);
             if (hit) onPlayer = hit.collider.gameObject == col.collider.gameObject;
-            
-            if (!transform.parent) transform.SetParent(onPlayer ? col.transform : null);
-            _rb.mass = onPlayer ? 0 : _mass;
+
+            if (!transform.parent && onPlayer) transform.SetParent(col.transform);
         }
     }
 
@@ -184,10 +183,6 @@ public class Player : MonoBehaviour
             case "Lethal" when !_hasTouchedLethal:
                 gameObject.GetComponent<Player>().OnDeath();
                 _hasTouchedLethal = true;
-                break;
-            case "Player" when _rb.velocity.y < 0:
-            case "Clone" when _rb.velocity.y < 0:
-                _rb.mass = 0;
                 break;
         }
     }

@@ -1,10 +1,13 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 
 public class WallToggle : MonoBehaviour
 {
     [SerializeField] private bool startOn;
     private bool _isOn;
+
+    [SerializeField] private int minButtonCount = 1;
     private int _buttonCount;
 
     private TilemapCollider2D _col;
@@ -25,7 +28,7 @@ public class WallToggle : MonoBehaviour
     public void Toggle(int buttonStatus)
     {
         _buttonCount += buttonStatus;
-        _isOn = _buttonCount > 0 ^ startOn;
+        _isOn = _buttonCount > minButtonCount-1 ^ startOn;
         SetCollider();
     }
 
