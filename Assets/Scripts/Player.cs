@@ -81,7 +81,7 @@ public class Player : MonoBehaviour
         Animator.SetFloat(AnimHorizontalSpeed, Math.Abs(_rb.velocity.x));
         Animator.SetFloat(AnimVerticalVelocity, _rb.velocity.y);
         Animator.SetBool(AnimIsGrounded, _isGrounded);
-ani        Animator.SetBool(AnimOnPlayer, transform.parent);
+        Animator.SetBool(AnimOnPlayer, transform.parent);
     }
 
     public void SetVelocity(Vector2 addedMovement)
