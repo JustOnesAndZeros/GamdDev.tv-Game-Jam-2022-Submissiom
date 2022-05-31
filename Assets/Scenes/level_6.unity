@@ -604,6 +604,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8900295393859492227, guid: 89d778ab3f03b0241a4707d1b6f81f1e, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 8900295393859492286, guid: 89d778ab3f03b0241a4707d1b6f81f1e, type: 3}
       propertyPath: m_Name
       value: TimerCanvas

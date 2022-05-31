@@ -53,6 +53,24 @@ public partial class @PlayerInputActions : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ResetAll"",
+                    ""type"": ""Button"",
+                    ""id"": ""d6dd00d1-f0f7-4d9b-aa58-528769b5ca82"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Quit"",
+                    ""type"": ""Button"",
+                    ""id"": ""94f8e80f-5961-432e-b8cd-a489d7ba7688"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -165,6 +183,28 @@ public partial class @PlayerInputActions : IInputActionCollection2, IDisposable
                     ""action"": ""Reset"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0c0a1ce6-563a-49e4-ba51-195fddcc1cb9"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""ResetAll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""370cc59c-456a-4819-92b9-e8e2e7b61259"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""Quit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -188,6 +228,8 @@ public partial class @PlayerInputActions : IInputActionCollection2, IDisposable
         m_Movement_Horizontal = m_Movement.FindAction("Horizontal", throwIfNotFound: true);
         m_Movement_Jump = m_Movement.FindAction("Jump", throwIfNotFound: true);
         m_Movement_Reset = m_Movement.FindAction("Reset", throwIfNotFound: true);
+        m_Movement_ResetAll = m_Movement.FindAction("ResetAll", throwIfNotFound: true);
+        m_Movement_Quit = m_Movement.FindAction("Quit", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -250,13 +292,17 @@ public partial class @PlayerInputActions : IInputActionCollection2, IDisposable
     private readonly InputAction m_Movement_Horizontal;
     private readonly InputAction m_Movement_Jump;
     private readonly InputAction m_Movement_Reset;
+    private readonly InputAction m_Movement_ResetAll;
+    private readonly InputAction m_Movement_Quit;
     public struct MovementActions
     {
         private @PlayerInputActions m_Wrapper;
         public MovementActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Horizontal => m_Wrapper.m_Movement_Horizontal;
         public InputAction @Jump => m_Wrapper.m_Movement_Jump;
-        public InputAction @Reset => m_Wrapper.m_Movement_Reset;
+        public InputAction RestartLevel => m_Wrapper.m_Movement_Reset;
+        public InputAction RestartGame => m_Wrapper.m_Movement_ResetAll;
+        public InputAction @Quit => m_Wrapper.m_Movement_Quit;
         public InputActionMap Get() { return m_Wrapper.m_Movement; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -272,9 +318,15 @@ public partial class @PlayerInputActions : IInputActionCollection2, IDisposable
                 @Jump.started -= m_Wrapper.m_MovementActionsCallbackInterface.OnJump;
                 @Jump.performed -= m_Wrapper.m_MovementActionsCallbackInterface.OnJump;
                 @Jump.canceled -= m_Wrapper.m_MovementActionsCallbackInterface.OnJump;
-                @Reset.started -= m_Wrapper.m_MovementActionsCallbackInterface.OnReset;
-                @Reset.performed -= m_Wrapper.m_MovementActionsCallbackInterface.OnReset;
-                @Reset.canceled -= m_Wrapper.m_MovementActionsCallbackInterface.OnReset;
+                RestartLevel.started -= m_Wrapper.m_MovementActionsCallbackInterface.OnReset;
+                RestartLevel.performed -= m_Wrapper.m_MovementActionsCallbackInterface.OnReset;
+                RestartLevel.canceled -= m_Wrapper.m_MovementActionsCallbackInterface.OnReset;
+                RestartGame.started -= m_Wrapper.m_MovementActionsCallbackInterface.OnResetAll;
+                RestartGame.performed -= m_Wrapper.m_MovementActionsCallbackInterface.OnResetAll;
+                RestartGame.canceled -= m_Wrapper.m_MovementActionsCallbackInterface.OnResetAll;
+                @Quit.started -= m_Wrapper.m_MovementActionsCallbackInterface.OnQuit;
+                @Quit.performed -= m_Wrapper.m_MovementActionsCallbackInterface.OnQuit;
+                @Quit.canceled -= m_Wrapper.m_MovementActionsCallbackInterface.OnQuit;
             }
             m_Wrapper.m_MovementActionsCallbackInterface = instance;
             if (instance != null)
@@ -285,9 +337,15 @@ public partial class @PlayerInputActions : IInputActionCollection2, IDisposable
                 @Jump.started += instance.OnJump;
                 @Jump.performed += instance.OnJump;
                 @Jump.canceled += instance.OnJump;
-                @Reset.started += instance.OnReset;
-                @Reset.performed += instance.OnReset;
-                @Reset.canceled += instance.OnReset;
+                RestartLevel.started += instance.OnReset;
+                RestartLevel.performed += instance.OnReset;
+                RestartLevel.canceled += instance.OnReset;
+                RestartGame.started += instance.OnResetAll;
+                RestartGame.performed += instance.OnResetAll;
+                RestartGame.canceled += instance.OnResetAll;
+                @Quit.started += instance.OnQuit;
+                @Quit.performed += instance.OnQuit;
+                @Quit.canceled += instance.OnQuit;
             }
         }
     }
@@ -306,5 +364,7 @@ public partial class @PlayerInputActions : IInputActionCollection2, IDisposable
         void OnHorizontal(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnReset(InputAction.CallbackContext context);
+        void OnResetAll(InputAction.CallbackContext context);
+        void OnQuit(InputAction.CallbackContext context);
     }
 }

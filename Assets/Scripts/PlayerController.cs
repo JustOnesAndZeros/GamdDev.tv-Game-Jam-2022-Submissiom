@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : Player
 {
@@ -17,7 +19,9 @@ public class PlayerController : Player
         
         _playerInputActions = new PlayerInputActions();
 
-        _playerInputActions.Movement.Reset.started += OnReset;
+        _playerInputActions.Movement.RestartLevel.started += OnRestartLevel;
+        _playerInputActions.Movement.RestartGame.started += OnRestartGame;
+        _playerInputActions.Movement.Quit.started += OnQuit;
 
         _playerInputActions.Movement.Horizontal.started += OnMove;
         _playerInputActions.Movement.Horizontal.canceled += OnMove;
@@ -31,7 +35,9 @@ public class PlayerController : Player
     //unsubscribes from events
     private void OnDisable()
     {
-        _playerInputActions.Movement.Reset.started -= OnReset;
+        _playerInputActions.Movement.RestartLevel.started -= OnRestartLevel;
+        _playerInputActions.Movement.RestartGame.started -= OnRestartGame;
+        _playerInputActions.Movement.Quit.started -= OnQuit;
         
         _playerInputActions.Movement.Horizontal.started -= OnMove;
         _playerInputActions.Movement.Horizontal.canceled -= OnMove;
@@ -68,8 +74,18 @@ public class PlayerController : Player
         SpawnScript.AddToQueue(_recordedActions);
     }
 
-    private void OnReset(InputAction.CallbackContext ctx)
+    private void OnRestartLevel(InputAction.CallbackContext ctx)
     {
         SpawnScript.ResetLevel();
+    }
+    
+    private void OnRestartGame(InputAction.CallbackContext ctx)
+    {
+        SceneManager.LoadScene(0);
+    }
+    
+    private void OnQuit(InputAction.CallbackContext ctx)
+    {
+        Application.Quit();
     }
 }

@@ -1,9 +1,12 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class TimerManager : MonoBehaviour
 {
+    private PlayerInputActions _playerInputActions;
+    
     private TextMeshProUGUI _textMesh;
     
     private float _timePassed;
@@ -14,6 +17,25 @@ public class TimerManager : MonoBehaviour
     private void Awake()
     {
         _textMesh = GetComponent<TextMeshProUGUI>();
+    }
+
+    private void OnEnable()
+    {
+        _playerInputActions = new PlayerInputActions();
+        _playerInputActions.Enable();
+        
+        _playerInputActions.Movement.RestartGame.started += OnRestartGame;
+    }
+
+    private void OnDisable()
+    {
+        _playerInputActions.Movement.RestartGame.started -= OnRestartGame;
+        _playerInputActions.Enable();
+    }
+    
+    private void OnRestartGame(InputAction.CallbackContext ctx)
+    {
+        _timePassed = 0;
     }
 
     private void Update()
