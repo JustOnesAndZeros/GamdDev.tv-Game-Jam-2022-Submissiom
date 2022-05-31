@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -29,6 +28,7 @@ public class DoNotDestroyTimer : MonoBehaviour
             TextMeshProUGUI textMesh = GameObject.FindGameObjectWithTag("EndMessage").GetComponent<TextMeshProUGUI>();
             TimerManager timer = GetComponentInChildren<TimerManager>();
             textMesh.text = $"You Win!\nYour Time : {timer.minutes:00}:{timer.seconds:00}:{timer.milliseconds:00}";
+            timer.Hide();
         }
     }
 }
